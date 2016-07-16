@@ -6,12 +6,12 @@ class Encode():
     def __init__(self):
         pass
 
-    def Color(self, data):
-        ser = {}
-        ser['r'] = data.r
-        ser['g'] = data.g
-        ser['b'] = data.b
-        return(ser)
+    def color(self, data):
+        msg = {}
+        msg['r'] = data.r
+        msg['g'] = data.g
+        msg['b'] = data.b
+        return(msg)
 
 
 
@@ -19,9 +19,9 @@ class Decode():
     def __init__(self):
         pass
 
-    def Color(self, ser, color):
+    def color(self, msg, obj):
         # color = Color()
-        color.r = ser['r']
-        color.g = ser['g']
-        color.b = ser['b']
-        return(color)
+        obj.r = msg['r']
+        obj.g = msg['g']
+        obj.b = msg['b']
+        return(obj)
