@@ -25,14 +25,17 @@ class Encode():
 
     def biotac_all(cls, obj):
         msg = {}
-        h = header.Header().endcode(obj)
-        msg["pac0"] = obj.tactiles.pac0
-        msg["pac1"] = obj.tactiles.pac1
-        msg["pdc"] = obj.tactiles.pdc
-        msg["tac"] = obj.tactiles.tac
-        msg["tdc"] = obj.tactiles.tdc
-        msg["electrodes"] = obj.tactiles.electrodes
+        h = header.Header().encode(obj)
+        # bio = cls.biotac(obj.tactiles)
+        for i in range(5):
+            msg["%spac0" %i] = obj.tactiles[i].pac0
+            msg["%spac1" %i] = obj.tactiles[i].pac1
+            msg["%spdc" %i] = obj.tactiles[i].pdc
+            msg["%stac" %i] = obj.tactiles[i].tac
+            msg["%stdc" %i] = obj.tactiles[i].tdc
+            msg["%selectrodes" %i] = obj.tactiles[i].electrodes
         msg.update(h)
+        # msg.update(bio)
         return(msg)
 
     # def control_type(cls, obj):
@@ -40,7 +43,7 @@ class Encode():
 
     def ethercat_debug(cls, obj):
         msg = {}
-        h = header.Header().endcode(obj)
+        h = header.Header().encode(obj)
         msg["sensors"] = obj.sensors
         msg["data"] = obj.motor_data_type.data
         msg["which_motors"] = obj.which_motors
@@ -136,7 +139,7 @@ class Encode():
 
     def joint_controller_state(cls, obj):
         msg = {}
-        h = header.Header().endcode(obj)
+        h = header.Header().encode(obj)
         msg["set_point"] = obj.set_point
         msg["process_value"] = obj.process_value
         msg["process_value_dot"] = obj.process_value_dot
@@ -159,7 +162,7 @@ class Encode():
 
     def joint_muscle_position_controller_state(cls, obj):
         msg = {}
-        h = header.Header().endcode(obj)
+        h = header.Header().encode(obj)
         msg["set_point"] = obj.set_point
         msg["process_value"] = obj.process_value
         msg["process_value_dot"] = obj.process_value_dot
@@ -186,7 +189,7 @@ class Encode():
 
     def joint_muscle_valve_controller_state(cls, obj):
         msg = {}
-        h = header.Header().endcode(obj)
+        h = header.Header().encode(obj)
         msg["set_valve_muscle_0"] = obj.set_valve_muscle_0
         msg["set_valve_muscle_1"] = obj.set_valve_muscle_1
         msg["set_duration_muscle_0"] = obj.set_duration_muscle_0
@@ -210,7 +213,7 @@ class Encode():
 
     def mid_prox_data_all(cls, obj):
         msg = {}
-        h = header.Header().endcode(obj)
+        h = header.Header().encode(obj)
         msg["middle"] = obj.sensors.middle
         msg["proximal"] = obj.sensors.proximal
         msg.update(h)
@@ -230,7 +233,7 @@ class Encode():
 
     def shadow_contact_state_stamped(cls, obj):
         msg = {}
-        h = header.Header().endcode(obj)
+        h = header.Header().encode(obj)
         msg["tanx"] = obj.tangential_force.x
         msg["tany"] = obj.tangential_force.y
         msg["tanz"] = obj.tangential_force.z
@@ -247,7 +250,7 @@ class Encode():
 
     def shadow_pst(cls, obj):
         msg = {}
-        h = header.Header().endcode(obj)
+        h = header.Header().encode(obj)
         msg["pressure"] = obj.pressure
         msg["temperature"] = obj.temperature
         msg.update(h)
@@ -260,7 +263,7 @@ class Encode():
 
     def tactile_array(cls, obj):
         msg = {}
-        h = header.Header().endcode(obj)
+        h = header.Header().encode(obj)
         msg["data"] = obj.data.data.data
         msg.update(h)
         return(msg)
@@ -272,7 +275,7 @@ class Encode():
 
     def ubi0_all(cls, obj):
         msg = {}
-        h = header.Header().endcode(obj)
+        h = header.Header().encode(obj)
         msg["distal"] = obj.tactiles.distal
         msg.update(h)
         return(msg)
@@ -370,7 +373,7 @@ class Encode():
         msg["error_flag"] = obj.sendupdate_list.error_flag
         return(msg)
 
-# ===========================================================================================
+# ======================================================================================
 
 class Decode():
     def __init__(self):
@@ -392,12 +395,14 @@ class Decode():
 
     def biotac_all(cls, msg, obj):
         obj = header.Header().decode(msg, obj)
-        obj.tactiles.pac0 = msg["pac0"]
-        obj.tactiles.pac1 = msg["pac1"]
-        obj.tactiles.pdc = msg["pdc"]
-        obj.tactiles.tac = msg["tac"]
-        obj.tactiles.tdc = msg["tdc"]
-        obj.tactiles.electrodes = msg["electrodes"]
+        # obj = cls.biotac(msg, obj.tactiles)
+        for i in range(5):
+            obj.tactiles[i].pac0 = msg["%spac0" %i]
+            obj.tactiles[i].pac1 = msg["%spac1" %i]
+            obj.tactiles[i].pdc = msg["%spdc" %i]
+            obj.tactiles[i].tac = msg["%stac" %i]
+            obj.tactiles[i].tdc = msg["%stdc" %i]
+            obj.tactiles[i].electrodes = msg["%selectrodes" %i]
         return(obj)
 
     def ethercat_debug(cls, msg, obj):
