@@ -1,14 +1,75 @@
 
-from rospy_msgpack import header
+from rospy_msgpack import interpret
 
+
+# class Functions():
+#     def __init__(self):
+#         pass
+#
+#     def angular_encode(cls, obj, i):
+#         msg = {}
+#         msg['%saccel_x' %i] = data.x
+#         msg['%saccel_y' %i] = data.y
+#         msg['%saccel_z' %i] = data.z
+#         return(msg)
+#
+#     def angular_decode(cls, msg, obj, i):
+#         data.x = msg['%saccel_x' %i]
+#         data.y = msg['%saccel_y' %i]
+#         data.z = msg['%saccel_z' %i]
+#         return(obj)
+#
+#     def linear_encode(cls, obj, i):
+#         msg = {}
+#         msg['%slin_x' %i] = data.x
+#         msg['%slin_y' %i] = data.y
+#         msg['%slin_z' %i] = data.z
+#         return(msg)
+#
+#     def linear_decode(cls, msg, obj, i):
+#         data.x = msg['%slin_x' %i]
+#         data.y = msg['%slin_y' %i]
+#         data.z = msg['%slin_z' %i]
+#         return(obj)
+#
+#     def position_encode(cls, obj, i):
+#         msg = {}
+#         msg['%spos_x' %i] = obj.x
+#         msg['%spos_y' %i] = obj.y
+#         msg['%spos_z' %i] = obj.z
+#         return(msg)
+#
+#     def position_decode(cls, msg, obj, i):
+#         obj.x = msg['%spos_x' %i]
+#         obj.y = msg['%spos_y' %i]
+#         obj.z = msg['%spos_z' %i]
+#         return(obj)
+#
+#     def orientation_encode(cls, obj, i):
+#         msg = {}
+#         msg['%sorient_x' %i] = obj.x
+#         msg['%sorient_y' %i] = obj.y
+#         msg['%sorient_z' %i] = obj.z
+#         msg['%sorient_w' %i] = obj.w
+#         return(msg)
+#
+#     def orientation_decode(cls, msg, obj, i):
+#         obj.x = msg['%sorient_x' %i]
+#         obj.y = msg['%sorient_y' %i]
+#         obj.z = msg['%sorient_z' %i]
+#         obj.w = msg['%sorient_w' %i]
+#         return(obj)
 
 class Encode():
     def __init__(self):
         pass
 
     def accel(cls, obj):
-        msg = cls.twist(obj)
-        # msg = {}
+        msg = {}
+        lin = interpret.Encode().linear(obj.linear, "")
+        ang = interpret.Encode().angular(obj.angular, "")
+        msg.update(lin)
+        msg.update(ang)
         # msg['lx'] = data.linear.x
         # msg['ly'] = data.linear.y
         # msg['lz'] = data.linear.z
@@ -19,38 +80,54 @@ class Encode():
 
     def accel_stamped(cls, obj):
         msg = {}
-        h = header.Header().encode(obj)
-        msg['lx'] = obj.accel.linear.x
-        msg['ly'] = obj.accel.linear.y
-        msg['lz'] = obj.accel.linear.z
-        msg['ax'] = obj.accel.angular.x
-        msg['ay'] = obj.accel.angular.y
-        msg['az'] = obj.accel.angular.z
+        h = interpret.Encode().header(obj.header, "")
+        lin = interpret.Encode().linear(obj.accel.linear, "")
+        ang = interpret.Encode().angular(obj.accel.angular, "")
         msg.update(h)
+        msg.update(lin)
+        msg.update(ang)
+        # msg['lx'] = obj.accel.linear.x
+        # msg['ly'] = obj.accel.linear.y
+        # msg['lz'] = obj.accel.linear.z
+        # msg['ax'] = obj.accel.angular.x
+        # msg['ay'] = obj.accel.angular.y
+        # msg['az'] = obj.accel.angular.z
         return(msg)
 
     def accel_with_covariance(cls, obj):
         msg = {}
-        msg['lx'] = obj.accel.linear.x
-        msg['ly'] = obj.accel.linear.y
-        msg['lz'] = obj.accel.linear.z
-        msg['ax'] = obj.accel.angular.x
-        msg['ay'] = obj.accel.angular.y
-        msg['az'] = obj.accel.angular.z
-        msg['covariance'] = obj.covariance
+        lin = interpret.Encode().linear(obj.accel.linear, "")
+        ang = interpret.Encode().angular(obj.accel.angular, "")
+        covar = interpret.Encode().covariance(obj, "")
+        msg.update(lin)
+        msg.update(ang)
+        msg.update(covar)
+        # msg['lx'] = obj.accel.linear.x
+        # msg['ly'] = obj.accel.linear.y
+        # msg['lz'] = obj.accel.linear.z
+        # msg['ax'] = obj.accel.angular.x
+        # msg['ay'] = obj.accel.angular.y
+        # msg['az'] = obj.accel.angular.z
+        # msg['covariance'] = obj.covariance
         return(msg)
 
     def accel_with_covariance_stamped(cls, obj):
         msg = {}
-        h = header.Header().encode(obj)
-        msg['lx'] = obj.accel.accel.linear.x
-        msg['ly'] = obj.accel.accel.linear.y
-        msg['lz'] = obj.accel.accel.linear.z
-        msg['ax'] = obj.accel.accel.angular.x
-        msg['ay'] = obj.accel.accel.angular.y
-        msg['az'] = obj.accel.accel.angular.z
-        msg['covariance'] = obj.accel.covariance
+        h = interpret.Encode().header(obj.header, "")
+        lin = interpret.Encode().linear(obj.accel.accel.linear, "")
+        ang = interpret.Encode().angular(obj.accel.accel.angular, "")
+        covar = interpret.Encode().covariance(obj.accel, "")
         msg.update(h)
+        msg.update(lin)
+        msg.update(ang)
+        msg.update(covar)
+        # msg['lx'] = obj.accel.accel.linear.x
+        # msg['ly'] = obj.accel.accel.linear.y
+        # msg['lz'] = obj.accel.accel.linear.z
+        # msg['ax'] = obj.accel.accel.angular.x
+        # msg['ay'] = obj.accel.accel.angular.y
+        # msg['az'] = obj.accel.accel.angular.z
+        # msg['covariance'] = obj.accel.covariance
         return(msg)
 
     def inertia(cls, obj):
@@ -121,13 +198,17 @@ class Encode():
 
     def pose(cls, obj):
         msg = {}
-        msg['px'] = obj.position.x
-        msg['py'] = obj.position.y
-        msg['pz'] = obj.position.z
-        msg['ox'] = obj.orientation.x
-        msg['oy'] = obj.orientation.y
-        msg['oz'] = obj.orientation.z
-        msg['ow'] = obj.orientation.w
+        pos = Functions().position_encode(obj.position, "")
+        msg.update(pos)
+        # msg['px'] = obj.position.x
+        # msg['py'] = obj.position.y
+        # msg['pz'] = obj.position.z
+        orient = Functions().orientation_encode(obj.orientation, "")
+        msg.update(orient)
+        # msg['ox'] = obj.orientation.x
+        # msg['oy'] = obj.orientation.y
+        # msg['oz'] = obj.orientation.z
+        # msg['ow'] = obj.orientation.w
         return(msg)
 
     def pose_2d(cls, obj):
@@ -234,12 +315,16 @@ class Encode():
 
     def twist(self, obj):
         msg = {}
-        msg['lx'] = obj.linear.x
-        msg['ly'] = obj.linear.y
-        msg['lz'] = obj.linear.z
-        msg['ax'] = obj.angular.x
-        msg['ay'] = obj.angular.y
-        msg['az'] = obj.angular.z
+        lin = interpret.Encode().linear(obj.linear, "")
+        ang = interpret.Encode().angular(obj.angular, "")
+        msg.update(lin)
+        msg.update(ang)
+        # msg['lx'] = obj.linear.x
+        # msg['ly'] = obj.linear.y
+        # msg['lz'] = obj.linear.z
+        # msg['ax'] = obj.angular.x
+        # msg['ay'] = obj.angular.y
+        # msg['az'] = obj.angular.z
         return(msg)
 
 
@@ -325,16 +410,19 @@ class Decode():
         pass
 
     def twist(self, msg, obj):
-         obj.linear.x = msg['lx']
-         obj.linear.y = msg['ly']
-         obj.linear.z = msg['lz']
-         obj.angular.x = msg['ax']
-         obj.angular.y = msg['ay']
-         obj.angular.z = msg['az']
-         return(obj)
+        obj.linear = interpret.Decode().linear(msg, obj.linear, "")
+        obj.angular = interpret.Decode().angular(msg, obj.angular, "")
+        #  obj.linear.x = msg['lx']
+        #  obj.linear.y = msg['ly']
+        #  obj.linear.z = msg['lz']
+        #  obj.angular.x = msg['ax']
+        #  obj.angular.y = msg['ay']
+        #  obj.angular.z = msg['az']
+        return(obj)
 
     def accel(cls, msg, obj):
-        obj = cls.twist(msg, obj)
+        obj.linear = interpret.Decode().linear(msg, obj.linear, "")
+        obj.angular = interpret.Decode().angular(msg, obj.angular, "")
         # obj.linear.x = msg['lx']
         # obj.linear.y = msg['ly']
         # obj.linear.z = msg['lz']
@@ -344,34 +432,42 @@ class Decode():
         return(obj)
 
     def accel_stamped(cls, msg, obj):
-        obj = header.Header().decode(msg, obj)
-        obj.accel.linear.x = msg['lx']
-        obj.accel.linear.y = msg['ly']
-        obj.accel.linear.z = msg['lz']
-        obj.accel.angular.x = msg['ax']
-        obj.accel.angular.y = msg['ay']
-        obj.accel.angular.z = msg['az']
+        obj.header = interpret.Decode().header(msg, obj.header, "")
+        obj.linear = interpret.Decode().linear(msg, obj.linear, "")
+        obj.angular = interpret.Decode().angular(msg, obj.angular, "")
+        # obj.accel.linear.x = msg['lx']
+        # obj.accel.linear.y = msg['ly']
+        # obj.accel.linear.z = msg['lz']
+        # obj.accel.angular.x = msg['ax']
+        # obj.accel.angular.y = msg['ay']
+        # obj.accel.angular.z = msg['az']
         return(obj)
 
     def accel_with_covariance(cls, msg, obj):
-        obj.accel.linear.x = msg['lx']
-        obj.accel.linear.y = msg['ly']
-        obj.accel.linear.z = msg['lz']
-        obj.accel.angular.x = msg['ax']
-        obj.accel.angular.y = msg['ay']
-        obj.accel.angular.z = msg['az']
-        obj.covariance = msg['covariance']
+        obj.accel.linear = interpret.Decode().linear(msg, obj.accel.linear, "")
+        obj.accel.angular = interpret.Decode().angular(msg, obj.accel.angular, "")
+        obj.covariance = interpret.Decode().covariance(msg, obj, "")
+        # obj.accel.linear.x = msg['lx']
+        # obj.accel.linear.y = msg['ly']
+        # obj.accel.linear.z = msg['lz']
+        # obj.accel.angular.x = msg['ax']
+        # obj.accel.angular.y = msg['ay']
+        # obj.accel.angular.z = msg['az']
+        # obj.covariance = msg['covariance']
         return(obj)
 
     def accel_with_covariance_stamped(cls, msg, obj):
-        obj = header.Header().decode(msg, obj)
-        obj.accel.accel.linear.x = msg['lx']
-        obj.accel.accel.linear.y = msg['ly']
-        obj.accel.accel.linear.z = msg['lz']
-        obj.accel.accel.angular.x = msg['ax']
-        obj.accel.accel.angular.y = msg['ay']
-        obj.accel.accel.angular.z = msg['az']
-        obj.accel.covariance = msg['covariance']
+        obj.header = interpret.Decode().header(msg, obj.header, "")
+        obj.accel.accel.linear = interpret.Decode().linear(msg, obj.accel.accel.linear, "")
+        obj.accel.accel.angular = interpret.Decode().angular(msg, obj.accel.accel.angular, "")
+        obj.accel = interpret.Decode().covariance(msg, obj.accel, "")
+        # obj.accel.accel.linear.x = msg['lx']
+        # obj.accel.accel.linear.y = msg['ly']
+        # obj.accel.accel.linear.z = msg['lz']
+        # obj.accel.accel.angular.x = msg['ax']
+        # obj.accel.accel.angular.y = msg['ay']
+        # obj.accel.accel.angular.z = msg['az']
+        # obj.accel.covariance = msg['covariance']
         return(obj)
 
     def inertia(cls, msg, obj):
@@ -433,13 +529,15 @@ class Decode():
         return(obj)
 
     def pose(cls, msg, obj):
-        obj.position.x = msg['px']
-        obj.position.y = msg['py']
-        obj.position.z = msg['pz']
-        obj.orientation.x = msg['ox']
-        obj.orientation.y = msg['oy']
-        obj.orientation.z = msg['oz']
-        obj.orientation.w = msg['ow']
+        obj.position = Functions().orientation_decode(msg, obj.position, "")
+        obj.orientation = Functions().position_decode(msg, obj.orientation, "")
+        # obj.position.x = msg['px']
+        # obj.position.y = msg['py']
+        # obj.position.z = msg['pz']
+        # obj.orientation.x = msg['ox']
+        # obj.orientation.y = msg['oy']
+        # obj.orientation.z = msg['oz']
+        # obj.orientation.w = msg['ow']
         return(obj)
 
     def pose_2d(cls, msg, obj):

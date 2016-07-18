@@ -1,17 +1,17 @@
 
 
 class Header():
-    def encode(self, data):
+    def encode(self, obj, i):
         h = {}
-        h['seq'] = data.header.seq
-        h['secs'] = data.header.stamp.secs
-        h['nsecs'] = data.header.stamp.nsecs
-        h['frame_id'] = data.header.frame_id
+        h['%sseq' %i] = obj.header.seq
+        h['%ssecs' %i] = obj.header.stamp.secs
+        h['%snsecs' %i] = obj.header.stamp.nsecs
+        h['%sframe_id' %i] = obj.header.frame_id
         return(h)
 
-    def decode(self, msg, obj):
-        obj.header.seq = msg['seq']
-        obj.header.stamp.secs = msg['secs']
-        obj.header.stamp.nsecs = msg['nsecs']
-        obj.header.frame_id = msg['frame_id']
+    def decode(self, msg, obj, i):
+        obj.header.seq = msg['%sseq' %i]
+        obj.header.stamp.secs = msg['%ssecs' %i]
+        obj.header.stamp.nsecs = msg['%snsecs' %i]
+        obj.header.frame_id = msg['%sframe_id' %i]
         return(obj)

@@ -2,39 +2,69 @@
 from rospy_msgpack import header
 
 
+class Functions():
+    def __init__(self):
+        pass
+
+    def biotacs_encode(cls, obj, i):
+        msg = {}
+        msg["%spac0" %i] = obj.pac0
+        msg["%spac1" %i] = obj.pac1
+        msg["%spdc" %i] = obj.pdc
+        msg["%stac" %i] = obj.tac
+        msg["%stdc" %i] = obj.tdc
+        msg["%selectrodes" %i] = obj.electrodes
+        return(msg)
+
+    def biotacs_decode(cls, msg, obj, i):
+        obj.pac0 = msg["%spac0" %i]
+        obj.pac1 = msg["%spac1" %i]
+        obj.pdc = msg["%spdc" %i]
+        obj.tac = msg["%stac" %i]
+        obj.tdc = msg["%stdc" %i]
+        obj.electrodes = msg["%selectrodes" %i]
+        return(obj)
+
+
+
+
 class Encode():
     def __init__(self):
         pass
 
     def aux_spi_data(cls, obj):
         msg = {}
-        h = header.Header().endcode(obj)
+        h = header.Header().encode(obj, "")
         msg["sensors"] = obj.sensors
         msg.update(h)
         return(msg)
 
     def biotac(cls, obj):
         msg = {}
-        msg["pac0"] = obj.pac0
-        msg["pac1"] = obj.pac1
-        msg["pdc"] = obj.pdc
-        msg["tac"] = obj.tac
-        msg["tdc"] = obj.tdc
-        msg["electrodes"] = obj.electrodes
+        bio = Functions().biotacs_encode(obj, "")
+        msg.update(bio)
+        # msg["pac0"] = obj.pac0
+        # msg["pac1"] = obj.pac1
+        # msg["pdc"] = obj.pdc
+        # msg["tac"] = obj.tac
+        # msg["tdc"] = obj.tdc
+        # msg["electrodes"] = obj.electrodes
         return(msg)
 
     def biotac_all(cls, obj):
         msg = {}
-        h = header.Header().encode(obj)
+        h = header.Header().encode(obj, "")
+        msg.update(h)
         # bio = cls.biotac(obj.tactiles)
         for i in range(5):
-            msg["%spac0" %i] = obj.tactiles[i].pac0
-            msg["%spac1" %i] = obj.tactiles[i].pac1
-            msg["%spdc" %i] = obj.tactiles[i].pdc
-            msg["%stac" %i] = obj.tactiles[i].tac
-            msg["%stdc" %i] = obj.tactiles[i].tdc
-            msg["%selectrodes" %i] = obj.tactiles[i].electrodes
-        msg.update(h)
+            bio = Functions().biotacs_encode(obj.tactiles[i], i)
+            msg.update(bio)
+            # msg["%spac0" %i] = obj.tactiles[i].pac0
+            # msg["%spac1" %i] = obj.tactiles[i].pac1
+            # msg["%spdc" %i] = obj.tactiles[i].pdc
+            # msg["%stac" %i] = obj.tactiles[i].tac
+            # msg["%stdc" %i] = obj.tactiles[i].tdc
+            # msg["%selectrodes" %i] = obj.tactiles[i].electrodes
         # msg.update(bio)
         return(msg)
 
@@ -385,24 +415,26 @@ class Decode():
         return(obj)
 
     def biotac(cls, msg, obj):
-        obj.pac0 = msg["pac0"]
-        obj.pac1 = msg["pac1"]
-        obj.pdc = msg["pdc"]
-        obj.tac = msg["tac"]
-        obj.tdc = msg["tdc"]
-        obj.electrodes = msg["electrodes"]
+        obj = Functions.biotacs_decode(msg, obj, 0)
+        # obj.pac0 = msg["pac0"]
+        # obj.pac1 = msg["pac1"]
+        # obj.pdc = msg["pdc"]
+        # obj.tac = msg["tac"]
+        # obj.tdc = msg["tdc"]
+        # obj.electrodes = msg["electrodes"]
         return(obj)
 
     def biotac_all(cls, msg, obj):
-        obj = header.Header().decode(msg, obj)
+        obj = header.Header().decode(msg, obj, "")
         # obj = cls.biotac(msg, obj.tactiles)
         for i in range(5):
-            obj.tactiles[i].pac0 = msg["%spac0" %i]
-            obj.tactiles[i].pac1 = msg["%spac1" %i]
-            obj.tactiles[i].pdc = msg["%spdc" %i]
-            obj.tactiles[i].tac = msg["%stac" %i]
-            obj.tactiles[i].tdc = msg["%stdc" %i]
-            obj.tactiles[i].electrodes = msg["%selectrodes" %i]
+            obj.tactiles[i] = Functions().biotacs_decode(msg, obj.tactiles[i], i)
+            # obj.tactiles[i].pac0 = msg["%spac0" %i]
+            # obj.tactiles[i].pac1 = msg["%spac1" %i]
+            # obj.tactiles[i].pdc = msg["%spdc" %i]
+            # obj.tactiles[i].tac = msg["%stac" %i]
+            # obj.tactiles[i].tdc = msg["%stdc" %i]
+            # obj.tactiles[i].electrodes = msg["%selectrodes" %i]
         return(obj)
 
     def ethercat_debug(cls, msg, obj):
