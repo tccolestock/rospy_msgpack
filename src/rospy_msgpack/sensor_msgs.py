@@ -1,5 +1,8 @@
 
-from rospy_msgpack import header
+from rospy_msgpack import interpret
+
+encode = interpret.Encode()
+decode = interpret.Decode()
 
 # msg["key"] = obj.path.attribute
 class Encode():
@@ -8,7 +11,7 @@ class Encode():
 
     def camera_info(cls, obj):
         msg = {}
-        h = header.Header().encode(obj)
+        h = encode.header(obj.header, "")
         msg['height'] = obj.height
         msg['width'] = obj.width
         msg['distortion_model'] = obj.distortion_model
@@ -18,12 +21,9 @@ class Encode():
         msg["P"] = obj.P
         msg["binning_x"] = obj.binning_x
         msg["binning_y"] = obj.binning_y
-        msg["x_offset"] = obj.roi.x_offset
-        msg["y_offset"] = obj.roi.y_offset
-        msg["rheight"] = obj.roi.height
-        msg["rwidth"] = obj.roi.width
-        msg["do_rectify"] = obj.roi.do_rectify
+        r = encode.roi(obj.roi, "")
         msg.update(h)
+        msg.update(r)
         return(msg)
 
     def channel_float32(cls, obj):
@@ -34,7 +34,7 @@ class Encode():
 
     def compressed_image(cls, obj):
         msg = {}
-        h = header.Header().encode(obj)
+        h = encode.header(obj.header, "")
         msg["format"] = obj.format
         msg["data"] = obj.data
         msg.update(h)
@@ -42,7 +42,7 @@ class Encode():
 
     def fluid_pressure(cls, obj):
         msg = {}
-        h = header.Header().encode(obj)
+        h = encode.header(obj.header, "")
         msg["fluid_pressure"] = obj.fluid_pressure
         msg["variance"] = obj.variance
         msg.update(h)
@@ -50,7 +50,7 @@ class Encode():
 
     def illuminance(cls, obj):
         msg = {}
-        h = header.Header().encode(obj)
+        h = encode.header(obj.header, "")
         msg["illuminance"] = obj.illuminance
         msg["variance"] = obj.variance
         msg.update(h)
@@ -58,7 +58,7 @@ class Encode():
 
     def image(cls, obj):
         msg = {}
-        h = header.Header().encode(obj)
+        h = encode.header(obj.header, "")
         msg["height"] = obj.height
         msg["width"] = obj.width
         msg["encoding"] = obj.encoding
@@ -70,38 +70,38 @@ class Encode():
 
     def imu(cls, obj):
         msg = {}
-        h = header.Header().endcode(obj)
-        msg["ox"] = obj.orientation.x
-        msg["oy"] = obj.orientation.y
-        msg["oz"] = obj.orientation.z
-        msg["ow"] = obj.orientation.w
+        h = encode.header(obj.header, "")
+        o = encode.orientation(obj.orientation, "")
         msg["orientation_covariance"] = obj.orientation_covariance
-        msg["ax"] = obj.angular_velocity.x
-        msg["ay"] = obj.angular_velocity.y
-        msg["az"] = obj.angular_velocity.z
+        av = encode.xyz(obj.angular_velocity, "ang_", "velo")
+        # msg["ax"] = obj.angular_velocity.x
+        # msg["ay"] = obj.angular_velocity.y
+        # msg["az"] = obj.angular_velocity.z
         msg["angular_velocity_covariance"] = obj.angular_velocity_covariance
-        msg["lx"] = obj.linear_acceleration.x
-        msg["ly"] = obj.linear_acceleration.y
-        msg["lz"] = obj.linear_acceleration.z
+        la = encode.xyz(obj.linear_acceleration, "lin_", "accel")
+        # msg["lx"] = obj.linear_acceleration.x
+        # msg["ly"] = obj.linear_acceleration.y
+        # msg["lz"] = obj.linear_acceleration.z
         msg["linear_acceleration_covariance"] = obj.linear_acceleration_covariance
         msg.update(h)
+        msg.update(o)
+        msg.update(av)
+        msg.update(la)
         return(msg)
 
     def joint_state(self, obj):
         msg = {}
-        msg['seq'] = obj.header.seq
-        msg['secs'] = obj.header.stamp.secs
-        msg['nsecs'] = obj.header.stamp.nsecs
-        msg['frame_id'] = obj.header.frame_id
+        h = encode.header(obj.header, "")
         msg['name'] = obj.name
         msg['position'] = obj.position
         msg['velocity'] = obj.velocity
         msg['effort'] = obj.effort
+        msg.update(h)
         return(msg)
 
     def joy(cls, obj):
         msg = {}
-        h = header.Header().endcode(obj)
+        h = encode.header(obj.header, "")
         msg["axes"] = obj.axes
         msg["buttons"] = obj.buttons
         msg.update(h)
@@ -121,60 +121,55 @@ class Encode():
 
     def laser_scan(cls, obj):
         msg = {}
-        h = header.Header().endcode(obj)
-        msg["angle_min"] = obj.angle_min
-        msg["angle_max"] = obj.angle_max
-        msg["angle_increment"] = obj.angle_increment
-        msg["time_increment"] = obj.time_increment
-        msg["scan_time"] = obj.scan_time
-        msg["range_min"] = obj.range_min
-        msg["range_max"] = obj.range_max
+        h = encode.header(obj.header, "")
+        l = encode.laser(obj, "")
+        # msg["angle_min"] = obj.angle_min
+        # msg["angle_max"] = obj.angle_max
+        # msg["angle_increment"] = obj.angle_increment
+        # msg["time_increment"] = obj.time_increment
+        # msg["scan_time"] = obj.scan_time
+        # msg["range_min"] = obj.range_min
+        # msg["range_max"] = obj.range_max
         msg["ranges"] = obj.ranges
         msg["intensities"] = obj.intensities
         msg.update(h)
+        msg.update(l)
         return(msg)
 
     def magnetic_field(cls, obj):
         msg = {}
-        h = header.Header().endcode(obj)
-        msg["x"] = obj.magnetic_field.x
-        msg["y"] = obj.magnetic_field.y
-        msg["z"] = obj.magnetic_field.z
+        h = encode.header(obj.header, "")
+        mf = encode.xyz(obj.magnetic_field, "", "mag")
+        # msg["x"] = obj.magnetic_field.x
+        # msg["y"] = obj.magnetic_field.y
+        # msg["z"] = obj.magnetic_field.z
         msg["magnetic_field_covariance"] = obj.magnetic_field_covariance
         msg.update(h)
+        msg.update(mf)
         return(msg)
 
     def multi_dof_joint_state(cls, obj):
         msg = {}
-        h = header.Header().endcode(obj)
+        h = encode.header(obj.header, "")
         msg["joint_names"] = obj.joint_names
-        msg["tx"] = obj.transforms.translation.x
-        msg["ty"] = obj.transforms.translation.y
-        msg["tz"] = obj.transforms.translation.z
-        msg["rx"] = obj.transforms.rotation.x
-        msg["ry"] = obj.transforms.rotation.y
-        msg["rz"] = obj.transforms.rotation.z
-        msg["rw"] = obj.transforms.rotation.w
-
-        msg["lx"] = obj.twist.linear.x
-        msg["ly"] = obj.twist.linear.y
-        msg["lz"] = obj.twist.linear.z
-        msg["ax"] = obj.twist.angular.x
-        msg["ay"] = obj.twist.angular.y
-        msg["az"] = obj.twist.angular.z
-
-        msg["fx"] = obj.wrench.force.x
-        msg["fy"] = obj.wrench.force.y
-        msg["fz"] = obj.wrench.force.z
-        msg["qx"] = obj.wrench.torque.x
-        msg["qy"] = obj.wrench.torque.y
-        msg["qz"] = obj.wrench.torque.z
+        tr = encode.translation(obj.transforms.translation, "")
+        r = encode.rotation(obj.transforms.rotation, "")
+        l = encode.linear(obj.twist.linear, "")
+        a = encode.angular(obj.twist.angular, "")
+        f = encode.force(obj.wrench.force, "")
+        tq = encode.torque(obj.wrench.torque, "")
         msg.update(h)
+        msg.update(tr)
+        msg.update(r)
+        msg.update(l)
+        msg.update(a)
+        msg.update(f)
+        msg.update(tq)
         return(msg)
 
     def multi_echo_laser_scan(cls, obj):
         msg = {}
-        h = header.Header().endcode(obj)
+        h = encode.header(obj.header, "")
         msg["angle_min"] = obj.angle_min
         msg["angle_max"] = obj.angle_max
         msg["angle_increment"] = obj.angle_increment
@@ -197,7 +192,7 @@ class Encode():
 
     def point_cloud(cls, obj):
         msg = {}
-        h = header.Header().endcode(obj)
+        h = encode.header(obj.header, "")
         msg["x"] = obj.points.x
         msg["y"] = obj.points.y
         msg["z"] = obj.points.z
@@ -208,7 +203,7 @@ class Encode():
 
     # def point_cloud_2(cls, obj):
     #     msg = {}
-    #     h = header.Header().endcode(obj)
+    #     h = encode.header(obj.header, "")
     #     msg["height"] = obj.height
     #     msg["width"] = obj.width
 
@@ -222,16 +217,13 @@ class Encode():
 
     def region_of_interest(cls, obj):
         msg = {}
-        msg["x_offset"] = obj.x_offset
-        msg["y_offset"] = obj.y_offset
-        msg["height"] = obj.height
-        msg["width"] = obj.width
-        msg["do_rectify"] = obj.do_rectify
+        r = encode.roi(obj, "")
+        msg.update(r)
         return(msg)
 
     def relative_humidity(cls, obj):
         msg = {}
-        h = header.Header().endcode(obj)
+        h = encode.header(obj.header, "")
         msg["relative_humidity"] = obj.relative_humidity
         msg["variance"] = obj.variance
         msg.update(h)
@@ -239,7 +231,7 @@ class Encode():
 
     def temperature(cls, obj):
         msg = {}
-        h = header.Header().endcode(obj)
+        h = encode.header(obj.header, "")
         msg["temperature"] = obj.temperature
         msg["variance"] = obj.variance
         msg.update(h)
@@ -247,7 +239,7 @@ class Encode():
 
     def time_reference(cls, obj):
         msg = {}
-        h = header.Header().endcode(obj)
+        h = encode.header(obj.header, "")
         msg["time_ref"] = obj.time_ref
         msg["source"] = obj.source
         msg.update(h)
@@ -263,7 +255,7 @@ class Decode():
 
 
     def camera_info(cls, msg, obj):
-        obj = header.Header().decode(msg, obj)
+        obj.header = decode.header(msg, obj.header, "")
         obj.height = msg['height']
         obj.width = msg['width']
         obj.distortion_model = msg['distortion_model']
@@ -273,11 +265,7 @@ class Decode():
         obj.P = msg["P"]
         obj.binning_x = msg["binning_x"]
         obj.binning_y = msg["binning_y"]
-        obj.roi.x_offset = msg["x_offset"]
-        obj.roi.y_offset = msg["y_offset"]
-        obj.roi.height = msg["rheight"]
-        obj.roi.width = msg["rwidth"]
-        obj.roi.do_rectify = msg["do_rectify"]
+        obj.roi = decode.roi(msg, obj.roi, "")
         return(obj)
 
     def channel_float32(cls, msg, obj):
@@ -286,25 +274,25 @@ class Decode():
         return(obj)
 
     def compressed_image(cls, msg, obj):
-        obj = header.Header().encode(msg, obj)
+        obj.header = decode.header(msg, obj.header, "")
         obj.format = msg["format"]
         obj.data = msg["data"]
         return(obj)
 
     def fluid_pressure(cls, msg, obj):
-        obj = header.Header().encode(msg, obj)
+        obj.header = decode.header(msg, obj.header, "")
         obj.fluid_pressure = msg["fluid_pressure"]
         obj.variance = msg["variance"]
         return(obj)
 
     def illuminance(cls, msg, obj):
-        obj = header.Header().decode(msg, obj)
+        obj.header = decode.header(msg, obj.header, "")
         obj.illuminance = msg["illuminance"]
         obj.variance = msg["variance"]
         return(obj)
 
     def image(cls, msg, obj):
-        obj = header.Header().decode(msg, obj)
+        obj.header = decode.header(msg, obj.header, "")
         obj.height = msg["height"]
         obj.width = msg["width"]
         obj.encoding = msg["encoding"]
@@ -314,19 +302,18 @@ class Decode():
         return(obj)
 
     def imu(cls, msg, obj):
-        obj = header.Header().decode(msg, obj)
-        obj.orientation.x = msg["ox"]
-        obj.orientation.y = msg["oy"]
-        obj.orientation.z = msg["oz"]
-        obj.orientation.w = msg["ow"]
+        obj.header = decode.header(msg, obj.header, "")
+        obj.orientation = decode.orientation(msg, obj.orientation, "")
         obj.orientation_covariance = msg["orientation_covariance"]
-        obj.angular_velocity.x = msg["ax"]
-        obj.angular_velocity.y = msg["ay"]
-        obj.angular_velocity.z = msg["az"]
+        obj.angular_velocity = decode.xyz(msg, obj.angular_velocity, "ang_", "velo")
+        # obj.angular_velocity.x = msg["ax"]
+        # obj.angular_velocity.y = msg["ay"]
+        # obj.angular_velocity.z = msg["az"]
         obj.angular_velocity_covariance = msg["angular_velocity_covariance"]
-        obj.linear_acceleration.x = msg["lx"]
-        obj.linear_acceleration.y = msg["ly"]
-        obj.linear_acceleration.z = msg["lz"]
+        obj.linear_acceleration = decode.xyz(msg, obj.linear_acceleration, "lin_", "accel")
+        # obj.linear_acceleration.x = msg["lx"]
+        # obj.linear_acceleration.y = msg["ly"]
+        # obj.linear_acceleration.z = msg["lz"]
         obj.linear_acceleration_covariance = msg["linear_acceleration_covariance"]
         return(obj)
 
@@ -343,7 +330,7 @@ class Decode():
         return(obj)
 
     def joy(cls, msg, obj):
-        obj = header.Header().decode(msg, obj)
+        obj.header = decode.header(msg, obj.header, "")
         obj.axes = msg["axes"]
         obj.buttons = msg["buttons"]
         return(obj)
@@ -353,52 +340,40 @@ class Decode():
         return(obj)
 
     def laser_scan(cls, msg, obj):
-        obj = header.Header().decode(msg, obj)
-        obj.angle_min = msg["angle_min"]
-        obj.angle_max = msg["angle_max"]
-        obj.angle_increment = msg["angle_increment"]
-        obj.time_increment = msg["time_increment"]
-        obj.scan_time = msg["scan_time"]
-        obj.range_min = msg["range_min"]
-        obj.range_max = msg["range_max"]
+        obj.header = decode.header(msg, obj.header, "")
+        obj = decode.laser(msg, obj, "")
+        # obj.angle_min = msg["angle_min"]
+        # obj.angle_max = msg["angle_max"]
+        # obj.angle_increment = msg["angle_increment"]
+        # obj.time_increment = msg["time_increment"]
+        # obj.scan_time = msg["scan_time"]
+        # obj.range_min = msg["range_min"]
+        # obj.range_max = msg["range_max"]
         obj.ranges = msg["ranges"]
         obj.intensities = msg["intensities"]
         return(obj)
 
     def magnetic_field(cls, msg, obj):
-        obj = header.Header().decode(msg, obj)
-        obj.magnetic_field.x = msg["x"]
-        obj.magnetic_field.y = msg["y"]
-        obj.magnetic_field.z = msg["z"]
+        obj.header = decode.header(msg, obj.header, "")
+        obj.magnetic_field = decode.xyz(msg, obj.magnetic_field, "", "mag")
+        # obj.magnetic_field.x = msg["x"]
+        # obj.magnetic_field.y = msg["y"]
+        # obj.magnetic_field.z = msg["z"]
         obj.magnetic_field_covariance = msg["magnetic_field_covariance"]
         return(obj)
 
     def multi_dof_joint_state(cls, msg, obj):
-        obj = header.Header().decode(msg, obj)
-        obj.joint_names = msg["joint_names"]
-        obj.transforms.translation.x = msg["tx"]
-        obj.transforms.translation.y = msg["ty"]
-        obj.transforms.translation.z = msg["tz"]
-        obj.transforms.rotation.x = msg["rx"]
-        obj.transforms.rotation.y = msg["ry"]
-        obj.transforms.rotation.z = msg["rz"]
-        obj.transforms.rotation.w = msg["rw"]
-        obj.twist.linear.x = msg["lx"]
-        obj.twist.linear.y = msg["ly"]
-        obj.twist.linear.z = msg["lz"]
-        obj.twist.angular.x = msg["ax"]
-        obj.twist.angular.y = msg["ay"]
-        obj.twist.angular.z = msg["az"]
-        obj.wrench.force.x = msg["fx"]
-        obj.wrench.force.y = msg["fy"]
-        obj.wrench.force.z = msg["fz"]
-        obj.wrench.torque.x = msg["qx"]
-        obj.wrench.torque.y = msg["qy"]
-        obj.wrench.torque.z = msg["qz"]
+        obj.header = decode.header(msg, obj.header, "")
+        obj.transforms.translation = decode.translation(msg, obj.transforms.translation, "")
+        obj.transforms.rotation = decode.rotation(msg, obj.transforms.rotation, "")
+        obj.twist.linear = decode.linear(msg, obj.twist.linear, "")
+        obj.twist.angular = decode.angular(msg, obj.twist.angular, "")
+        obj.wrench.force = decode.force(msg, obj.wrench.force, "")
+        obj.wrench.torque = decode.torque(msg, obj.wrench.torque, "")
         return(obj)
 
     def multi_echo_laser_scan(cls, msg, obj):
-        obj = header.Header().decode(msg, obj)
+        obj.header = decode.header(msg, obj.header, "")
         obj.angle_min = msg["angle_min"]
         obj.angle_max = msg["angle_max"]
         obj.angle_increment = msg["angle_increment"]
@@ -411,7 +386,7 @@ class Decode():
         return(obj)
 
     def point_cloud(cls, msg, obj):
-        obj = header.Header().decode(msg, obj)
+        obj.header = decode.header(msg, obj.header, "")
         obj.points.x = msg["x"]
         obj.points.y = msg["y"]
         obj.points.z = msg["z"]
@@ -420,27 +395,23 @@ class Decode():
         return(obj)
 
     def region_of_interest(cls, msg, obj):
-        obj.x_offset = msg["x_offset"]
-        obj.y_offset = msg["y_offset"]
-        obj.height = msg["height"]
-        obj.width = msg["width"]
-        obj.do_rectify = msg["do_rectify"]
+        obj = decode.roi(msg, obj, "")
         return(obj)
 
     def relative_humidity(cls, msg, obj):
-        obj = header.Header().decode(msg, obj)
+        obj.header = decode.header(msg, obj.header, "")
         obj.relative_humidity = msg["relative_humidity"]
         obj.variance = msg["variance"]
         return(obj)
 
     def temperature(cls, msg, obj):
-        obj = header.Header().decode(msg, obj)
+        obj.header = decode.header(msg, obj.header, "")
         obj.temperature = msg["temperature"]
         obj.variance = msg["variance"]
         return(obj)
 
     def time_reference(cls, msg, obj):
-        obj = header.Header().decode(msg, obj)
+        obj.header = decode.header(msg, obj.header, "")
         obj.time_ref = msg["time_ref"]
         obj.source = msg["source"]
         return(obj)
