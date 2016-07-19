@@ -133,38 +133,48 @@ class Encode():
     def inertia(cls, obj):
         msg = {}
         msg['m'] = obj.m
-        msg['x'] = obj.com.x
-        msg['y'] = obj.com.y
-        msg['z'] = obj.com.z
-        msg['ixx'] = obj.ixx
-        msg['ixy'] = obj.ixy
-        msg['ixz'] = obj.ixz
-        msg['iyy'] = obj.iyy
-        msg['iyz'] = obj.iyz
-        msg['izz'] = obj.izz
+        c = interpret.Encode().com(obj.com, "")
+        i = interpret.Encode().inertia(obj, "")
+        msg.update(c)
+        msg.update(i)
+        # msg['x'] = obj.com.x
+        # msg['y'] = obj.com.y
+        # msg['z'] = obj.com.z
+        # msg['ixx'] = obj.ixx
+        # msg['ixy'] = obj.ixy
+        # msg['ixz'] = obj.ixz
+        # msg['iyy'] = obj.iyy
+        # msg['iyz'] = obj.iyz
+        # msg['izz'] = obj.izz
         return(msg)
 
     def inertia_stamped(cls, obj):
         msg = {}
-        h = header.Header().encode(obj)
+        h = interpret.Encode().header(obj.header, "")
         msg['m'] = obj.inertia.m
-        msg['x'] = obj.inertia.com.x
-        msg['y'] = obj.inertia.com.y
-        msg['z'] = obj.inertia.com.z
-        msg['ixx'] = obj.inertia.ixx
-        msg['ixy'] = obj.inertia.ixy
-        msg['ixz'] = obj.inertia.ixz
-        msg['iyy'] = obj.inertia.iyy
-        msg['iyz'] = obj.inertia.iyz
-        msg['izz'] = obj.inertia.izz
+        c = interpret.Encode().com(obj.inertia.com, "")
+        i = interpret.Encode().inertia(obj.inertia, "")
         msg.update(h)
+        msg.update(c)
+        msg.update(i)
+        # msg['x'] = obj.inertia.com.x
+        # msg['y'] = obj.inertia.com.y
+        # msg['z'] = obj.inertia.com.z
+        # msg['ixx'] = obj.inertia.ixx
+        # msg['ixy'] = obj.inertia.ixy
+        # msg['ixz'] = obj.inertia.ixz
+        # msg['iyy'] = obj.inertia.iyy
+        # msg['iyz'] = obj.inertia.iyz
+        # msg['izz'] = obj.inertia.izz
         return(msg)
 
     def point(cls, obj):
         msg = {}
-        msg['x'] = obj.x
-        msg['y'] = obj.y
-        msg['z'] = obj.z
+        p = interpret.Encode().point(obj, "")
+        msg.update(p)
+        # msg['x'] = obj.x
+        # msg['y'] = obj.y
+        # msg['z'] = obj.z
         return(msg)
 
     def point32(cls, obj):
@@ -173,38 +183,44 @@ class Encode():
 
     def point_stamped(cls, obj):
         msg = {}
-        h = header.Header().encode(obj)
-        msg['x'] = obj.point.x
-        msg['y'] = obj.point.y
-        msg['z'] = obj.point.z
+        h = interpret.Encode().header(obj.header, "")
+        p = interpret.Encode().point(obj.point, "")
         msg.update(h)
+        msg.update(p)
+        # msg['x'] = obj.point.x
+        # msg['y'] = obj.point.y
+        # msg['z'] = obj.point.z
         return(msg)
 
     def polygon(cls, obj):
         msg = {}
-        msg['x'] = obj.points.x
-        msg['y'] = obj.points.y
-        msg['z'] = obj.points.z
+        p = interpret.Encode().point(obj.points, "")
+        msg.update(p)
+        # msg['x'] = obj.points.x
+        # msg['y'] = obj.points.y
+        # msg['z'] = obj.points.z
         return(msg)
 
     def polygon_stamped(cls, obj):
         msg = {}
-        h = header.Header().encode(obj)
-        msg['x'] = obj.polygon.points.x
-        msg['y'] = obj.polygon.points.y
-        msg['z'] = obj.polygon.points.z
+        h = interpret.Encode().header(obj.header, "")
+        p = interpret.Encode().point(obj.polygon.points, "")
         msg.update(h)
+        msg.update(p)
+        # msg['x'] = obj.polygon.points.x
+        # msg['y'] = obj.polygon.points.y
+        # msg['z'] = obj.polygon.points.z
         return(msg)
 
     def pose(cls, obj):
         msg = {}
-        pos = Functions().position_encode(obj.position, "")
+        pos = interpret.Encode().position(obj.position, "")
+        orient = interpret.Encode().orientation(obj.orientation, "")
         msg.update(pos)
+        msg.update(orient)
         # msg['px'] = obj.position.x
         # msg['py'] = obj.position.y
         # msg['pz'] = obj.position.z
-        orient = Functions().orientation_encode(obj.orientation, "")
-        msg.update(orient)
         # msg['ox'] = obj.orientation.x
         # msg['oy'] = obj.orientation.y
         # msg['oz'] = obj.orientation.z
@@ -220,40 +236,54 @@ class Encode():
 
     def pose_array(cls, obj):
         msg = {}
-        h = header.Header().encode(obj)
-        msg['px'] = obj.poses.position.x
-        msg['py'] = obj.poses.position.y
-        msg['pz'] = obj.poses.position.z
-        msg['ox'] = obj.poses.orientation.x
-        msg['oy'] = obj.poses.orientation.y
-        msg['oz'] = obj.poses.orientation.z
-        msg['ow'] = obj.poses.orientation.w
+        h = interpret.Encode().header(obj.header, "")
+        p = interpret.Encode().position(obj.poses.position, "")
+        o = interpret.Encode().orientation(obj.poses.orientation, "")
         msg.update(h)
+        msg.update(p)
+        msg.update(o)
+        # msg['px'] = obj.poses.position.x
+        # msg['py'] = obj.poses.position.y
+        # msg['pz'] = obj.poses.position.z
+        # msg['ox'] = obj.poses.orientation.x
+        # msg['oy'] = obj.poses.orientation.y
+        # msg['oz'] = obj.poses.orientation.z
+        # msg['ow'] = obj.poses.orientation.w
         return(msg)
 
     def pose_stamped(cls, obj):
         msg = {}
-        h = header.Header().encode(obj)
-        msg['px'] = obj.pose.position.x
-        msg['py'] = obj.pose.position.y
-        msg['pz'] = obj.pose.position.z
-        msg['ox'] = obj.pose.orientation.x
-        msg['oy'] = obj.pose.orientation.y
-        msg['oz'] = obj.pose.orientation.z
-        msg['ow'] = obj.pose.orientation.w
+        h = interpret.Encode().header(obj.header, "")
+        p = interpret.Encode().position(obj.pose.position, "")
+        o = interpret.Encode().orientation(obj.pose.orientation, "")
         msg.update(h)
+        msg.update(p)
+        msg.update(o)
+        # msg['px'] = obj.pose.position.x
+        # msg['py'] = obj.pose.position.y
+        # msg['pz'] = obj.pose.position.z
+        # msg['ox'] = obj.pose.orientation.x
+        # msg['oy'] = obj.pose.orientation.y
+        # msg['oz'] = obj.pose.orientation.z
+        # msg['ow'] = obj.pose.orientation.w
         return(msg)
 
     def pose_with_covariance(cls, obj):
         msg = {}
-        msg['px'] = obj.pose.position.x
-        msg['py'] = obj.pose.position.y
-        msg['pz'] = obj.pose.position.z
-        msg['ox'] = obj.pose.orientation.x
-        msg['oy'] = obj.pose.orientation.y
-        msg['oz'] = obj.pose.orientation.z
-        msg['ow'] = obj.pose.orientation.w
-        msg['covariance'] = obj.covariance
+        p = interpret.Encode().position(obj.pose.position, "")
+        o = interpret.Encode().orientation(obj.pose.orientation, "")
+        c = interpret.Encode().covariance(obj, "")
+        msg.update(p)
+        msg.update(o)
+        msg.update(c)
+        # msg['px'] = obj.pose.position.x
+        # msg['py'] = obj.pose.position.y
+        # msg['pz'] = obj.pose.position.z
+        # msg['ox'] = obj.pose.orientation.x
+        # msg['oy'] = obj.pose.orientation.y
+        # msg['oz'] = obj.pose.orientation.z
+        # msg['ow'] = obj.pose.orientation.w
+        # msg['covariance'] = obj.covariance
         return(msg)
 
     def pose_with_covariance_stamped(cls, obj):
@@ -446,7 +476,7 @@ class Decode():
     def accel_with_covariance(cls, msg, obj):
         obj.accel.linear = interpret.Decode().linear(msg, obj.accel.linear, "")
         obj.accel.angular = interpret.Decode().angular(msg, obj.accel.angular, "")
-        obj.covariance = interpret.Decode().covariance(msg, obj, "")
+        obj = interpret.Decode().covariance(msg, obj, "")
         # obj.accel.linear.x = msg['lx']
         # obj.accel.linear.y = msg['ly']
         # obj.accel.linear.z = msg['lz']
@@ -472,35 +502,40 @@ class Decode():
 
     def inertia(cls, msg, obj):
         obj.m = msg['m']
-        obj.com.x = msg['x']
-        obj.com.y = msg['y']
-        obj.com.z = msg['z']
-        obj.ixx = msg['ixx']
-        obj.ixy = msg['ixy']
-        obj.ixz = msg['ixz']
-        obj.iyy = msg['iyy']
-        obj.iyz = msg['iyz']
-        obj.izz = msg['izz']
+        obj.com = interpret.Decode().com(msg, obj.com, "")
+        obj = interpret.Decode().inertia(msg, obj, "")
+        # obj.com.x = msg['x']
+        # obj.com.y = msg['y']
+        # obj.com.z = msg['z']
+        # obj.ixx = msg['ixx']
+        # obj.ixy = msg['ixy']
+        # obj.ixz = msg['ixz']
+        # obj.iyy = msg['iyy']
+        # obj.iyz = msg['iyz']
+        # obj.izz = msg['izz']
         return(obj)
 
     def inertia_stamped(cls, msg, obj):
-        obj = header.Header().decode(msg, obj)
+        obj.header = interpret.Decode().header(msg, obj.header, "")
         obj.inertia.m = msg['m']
-        obj.inertia.com.x = msg['x']
-        obj.inertia.com.y = msg['y']
-        obj.inertia.com.z = msg['z']
-        obj.inertia.ixx = msg['ixx']
-        obj.inertia.ixy = msg['ixy']
-        obj.inertia.ixz = msg['ixz']
-        obj.inertia.iyy = msg['iyy']
-        obj.inertia.iyz = msg['iyz']
-        obj.inertia.izz = msg['izz']
+        obj.inertia.com = interpret.Decode().com(msg, obj.inertia.com, "")
+        obj.inertia = interpret.Decode().inertia(msg, obj.inertia, "")
+        # obj.inertia.com.x = msg['x']
+        # obj.inertia.com.y = msg['y']
+        # obj.inertia.com.z = msg['z']
+        # obj.inertia.ixx = msg['ixx']
+        # obj.inertia.ixy = msg['ixy']
+        # obj.inertia.ixz = msg['ixz']
+        # obj.inertia.iyy = msg['iyy']
+        # obj.inertia.iyz = msg['iyz']
+        # obj.inertia.izz = msg['izz']
         return(obj)
 
     def point(cls, msg, obj):
-        obj.x = msg['x']
-        obj.y = msg['y']
-        obj.z = msg['z']
+        obj = interpret.Decode().point(msg, obj, "")
+        # obj.x = msg['x']
+        # obj.y = msg['y']
+        # obj.z = msg['z']
         return(obj)
 
     def point32(cls, msg, obj):
@@ -508,29 +543,31 @@ class Decode():
         return(obj)
 
     def point_stamped(cls, msg, obj):
-        msg = {}
-        obj = header.Header().decode(msg, obj)
-        obj.point.x = msg['x']
-        obj.point.y = msg['y']
-        obj.point.z = msg['z']
+        obj.header = interpret.Decode().header(msg, obj.header, "")
+        obj.point = interpret.Decode().point(msg, obj.point, "")
+        # obj.point.x = msg['x']
+        # obj.point.y = msg['y']
+        # obj.point.z = msg['z']
         return(obj)
 
     def polygon(cls, msg, obj):
-        obj.points.x = msg['x']
-        obj.points.y = msg['y']
-        obj.points.z = msg['z']
+        obj.points = interpret.Decode().point(msg, obj.points, "")
+        # obj.points.x = msg['x']
+        # obj.points.y = msg['y']
+        # obj.points.z = msg['z']
         return(obj)
 
     def polygon_stamped(cls, msg, obj):
-        obj = header.Header().decode(msg, obj)
-        obj.polygon.points.x = msg['x']
-        obj.polygon.points.y = msg['y']
-        obj.polygon.points.z = msg['z']
+        obj.header = interpret.Decode().header(msg, obj.header, "")
+        obj.polygon.points = interpret.Decode.point(msg, obj.polygon.points, "")
+        # obj.polygon.points.x = msg['x']
+        # obj.polygon.points.y = msg['y']
+        # obj.polygon.points.z = msg['z']
         return(obj)
 
     def pose(cls, msg, obj):
-        obj.position = Functions().orientation_decode(msg, obj.position, "")
-        obj.orientation = Functions().position_decode(msg, obj.orientation, "")
+        obj.position = interpret.Decode().position(msg, obj.position, "")
+        obj.orientation = interpret.Decode().orientation(msg, obj.orientation, "")
         # obj.position.x = msg['px']
         # obj.position.y = msg['py']
         # obj.position.z = msg['pz']
@@ -547,36 +584,43 @@ class Decode():
         return(obj)
 
     def pose_array(cls, msg, obj):
-        obj = header.Header().decode(msg, obj)
-        obj.poses.position.x = msg['px']
-        obj.poses.position.y = msg['py']
-        obj.poses.position.z = msg['pz']
-        obj.poses.orientation.x = msg['ox']
-        obj.poses.orientation.y = msg['oy']
-        obj.poses.orientation.z = msg['oz']
-        obj.poses.orientation.w = msg['ow']
+        obj.header = interpret.Decode().header(msg, obj.header, "")
+        obj.poses.position = interpret.Decode().position(msg, obj.poses.position, "")
+        obj.poses.orientation = interpret.Decode().orientation(msg, obj.poses.orientation, "")
+        # obj.poses.position.x = msg['px']
+        # obj.poses.position.y = msg['py']
+        # obj.poses.position.z = msg['pz']
+        # obj.poses.orientation.x = msg['ox']
+        # obj.poses.orientation.y = msg['oy']
+        # obj.poses.orientation.z = msg['oz']
+        # obj.poses.orientation.w = msg['ow']
         return(obj)
 
     def pose_stamped(cls, msg, obj):
-        obj = header.Header().decode(msg, obj)
-        obj.pose.position.x = msg['px']
-        obj.pose.position.y = msg['py']
-        obj.pose.position.z = msg['pz']
-        obj.pose.orientation.x = msg['ox']
-        obj.pose.orientation.y = msg['oy']
-        obj.pose.orientation.z = msg['oz']
-        obj.pose.orientation.w = msg['ow']
+        obj.header = interpret.Decode().header(msg, obj.header, "")
+        obj.poses.position = interpret.Decode().position(msg, obj.pose.position, "")
+        obj.poses.orientation = interpret.Decode().orientation(msg, obj.pose.orientation, "")
+        # obj.pose.position.x = msg['px']
+        # obj.pose.position.y = msg['py']
+        # obj.pose.position.z = msg['pz']
+        # obj.pose.orientation.x = msg['ox']
+        # obj.pose.orientation.y = msg['oy']
+        # obj.pose.orientation.z = msg['oz']
+        # obj.pose.orientation.w = msg['ow']
         return(obj)
 
     def pose_with_covariance(cls, msg, obj):
-        obj.pose.position.x = msg['px']
-        obj.pose.position.y = msg['py']
-        obj.pose.position.z = msg['pz']
-        obj.pose.orientation.x = msg['ox']
-        obj.pose.orientation.y = msg['oy']
-        obj.pose.orientation.z = msg['oz']
-        obj.pose.orientation.w = msg['ow']
-        obj.covariance = msg['covariance']
+        obj.pose.position = interpret.Decode().position(msg, obj.pose.position, "")
+        obj.pose.orientation = interpret.Decode().orientation(msg, obj.pose.orientation, "")
+        obj = interpret.Decode().covariance(msg, obj, "")
+        # obj.pose.position.x = msg['px']
+        # obj.pose.position.y = msg['py']
+        # obj.pose.position.z = msg['pz']
+        # obj.pose.orientation.x = msg['ox']
+        # obj.pose.orientation.y = msg['oy']
+        # obj.pose.orientation.z = msg['oz']
+        # obj.pose.orientation.w = msg['ow']
+        # obj.covariance = msg['covariance']
         return(obj)
 
     def pose_with_covariance_stamped(cls, msg, obj):
