@@ -4,6 +4,16 @@ class Encode():
     def __init__(self):
         pass
 
+# ------------------ Universal Basic Functions -----------------------------
+    def xyz(cls, obj, uniq, desc):
+        # receives the object, a unique identifier if needed, and the descriptive term
+        msg = {}
+        msg['%s%s_x' %(uniq, desc)] = obj.x
+        msg['%s%s_y' %(uniq, desc)] = obj.y
+        msg['%s%s_z' %(uniq, desc)] = obj.z
+        return(msg)
+
+# ------------------ Header Messages -----------------------------
     def header(cls, obj, i):
         h = {}
         h['%sseq' %i] = obj.seq
@@ -14,17 +24,19 @@ class Encode():
 
 # ------------------ Geometry Messages -----------------------------
     def angular(cls, obj, i):
-        msg = {}
-        msg['%saccel_x' %i] = obj.x
-        msg['%saccel_y' %i] = obj.y
-        msg['%saccel_z' %i] = obj.z
+        msg = cls.xyz(obj, i, "ang")
+        # msg = {}
+        # msg['%sang_x' %i] = obj.x
+        # msg['%sang_y' %i] = obj.y
+        # msg['%sang_z' %i] = obj.z
         return(msg)
 
     def linear(cls, obj, i):
-        msg = {}
-        msg['%slin_x' %i] = obj.x
-        msg['%slin_y' %i] = obj.y
-        msg['%slin_z' %i] = obj.z
+        msg = cls.xyz(obj, i, "lin")
+        # msg = {}
+        # msg['%slin_x' %i] = obj.x
+        # msg['%slin_y' %i] = obj.y
+        # msg['%slin_z' %i] = obj.z
         return(msg)
 
     def position(cls, obj, i):
@@ -71,10 +83,62 @@ class Encode():
         msg['%sz' %i] = obj.z
         return(msg)
 
+    def quaternion(cls, obj, i):
+        msg = {}
+        msg['%squat_x' %i] = obj.x
+        msg['%squat_y' %i] = obj.y
+        msg['%squat_z' %i] = obj.z
+        msg['%squat_w' %i] = obj.w
+        return(msg)
+
+    def translation(cls, obj, i):
+        msg = {}
+        msg['%strans_x' %i] = obj.x
+        msg['%strans_y' %i] = obj.y
+        msg['%strans_z' %i] = obj.z
+        return(msg)
+
+    def rotation(cls, obj, i):
+        msg = {}
+        msg['%srot_x' %i] = obj.x
+        msg['%srot_y' %i] = obj.y
+        msg['%srot_z' %i] = obj.z
+        msg['%srot_w' %i] = obj.w
+        return(msg)
+
+    def vector(cls, obj, i):
+        msg = {}
+        msg['%svect_x' %i] = obj.x
+        msg['%svect_y' %i] = obj.y
+        msg['%svect_z' %i] = obj.z
+        return(msg)
+
+    def force(cls, obj, i):
+        msg = {}
+        msg['%sforce_x' %i] = obj.x
+        msg['%sforce_y' %i] = obj.y
+        msg['%sforce_z' %i] = obj.z
+        return(msg)
+
+    def torque(cls, obj, i):
+        msg = {}
+        msg['%storq_x' %i] = obj.x
+        msg['%storq_y' %i] = obj.y
+        msg['%storq_z' %i] = obj.z
+        return(msg)
+
 class Decode():
     def __init__(self):
         pass
 
+# ------------------ Universal Basic Functions -----------------------------
+    def xyz(cls, msg, obj, uniq, desc):
+        obj.x = msg["%s%s_x" %(uniq, desc)]
+        obj.y = msg["%s%s_y" %(uniq, desc)]
+        obj.z = msg["%s%s_z" %(uniq, desc)]
+        return(obj)
+
+# ------------------ Header Messages -----------------------------
     def header(cls, msg, obj, i):
         obj.seq = msg['%sseq' %i]
         obj.stamp.secs = msg['%ssecs' %i]
@@ -84,15 +148,17 @@ class Decode():
 
 # ------------------ Geometry Messages -----------------------------
     def angular(cls, msg, obj, i):
-        obj.x = msg['%saccel_x' %i]
-        obj.y = msg['%saccel_y' %i]
-        obj.z = msg['%saccel_z' %i]
+        obj = cls.xyz(msg, obj, i, "ang")
+        # obj.x = msg['%sang_x' %i]
+        # obj.y = msg['%sang_y' %i]
+        # obj.z = msg['%sang_z' %i]
         return(obj)
 
     def linear(cls, msg, obj, i):
-        obj.x = msg['%slin_x' %i]
-        obj.y = msg['%slin_y' %i]
-        obj.z = msg['%slin_z' %i]
+        obj = cls.xyz(msg, obj, i, "lin")
+        # obj.x = msg['%slin_x' %i]
+        # obj.y = msg['%slin_y' %i]
+        # obj.z = msg['%slin_z' %i]
         return(obj)
 
     def position(cls, msg, obj, i):
@@ -131,4 +197,41 @@ class Decode():
         obj.x = msg['%sx' %i]
         obj.y = msg['%sy' %i]
         obj.z = msg['%sz' %i]
+        return(obj)
+
+    def quaternion(cls, msg, obj, i):
+        obj.x = msg['%squat_x' %i]
+        obj.y = msg['%squat_y' %i]
+        obj.z = msg['%squat_z' %i]
+        obj.w = msg['%squat_w' %i]
+        return(obj)
+
+    def translation(cls, msg, obj, i):
+        obj.x = msg['%strans_x' %i]
+        obj.y = msg['%strans_y' %i]
+        obj.z = msg['%strans_z' %i]
+        return(obj)
+
+    def rotation(cls, msg, obj, i):
+        obj.x = msg['%srot_x' %i]
+        obj.y = msg['%srot_y' %i]
+        obj.z = msg['%srot_z' %i]
+        obj.w = msg['%srot_w' %i]
+        return(obj)
+
+    def vector(cls, msg, obj, i):
+        obj.x = msg['%svect_x' %i]
+        obj.y = msg['%svect_y' %i]
+        obj.z = msg['%svect_z' %i]
+        return(obj)
+
+    def force(cls, msg, obj, i):
+        obj.x = msg['%sforce_x' %i]
+        obj.y = msg['%sforce_y' %i]
+        obj.z = msg['%sforce_z' %i]
+        return(obj)
+    def torque(cls, msg, obj, i):
+        obj.x = msg['%storq_x' %i]
+        obj.y = msg['%storq_y' %i]
+        obj.z = msg['%storq_z' %i]
         return(obj)
