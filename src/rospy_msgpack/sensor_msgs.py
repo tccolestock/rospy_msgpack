@@ -152,19 +152,20 @@ class Encode():
         msg = {}
         h = encode.header(obj.header, "")
         msg["joint_names"] = obj.joint_names
-        tr = encode.translation(obj.transforms.translation, "")
-        r = encode.rotation(obj.transforms.rotation, "")
-        l = encode.linear(obj.twist.linear, "")
-        a = encode.angular(obj.twist.angular, "")
-        f = encode.force(obj.wrench.force, "")
-        tq = encode.torque(obj.wrench.torque, "")
+        for i in msg['joint_names']:
+            tr = encode.translation(obj.transforms[i].translation, i)
+            r = encode.rotation(obj.transforms[i].rotation, i)
+            l = encode.linear(obj.twist[i].linear, i)
+            a = encode.angular(obj.twist[i].angular, i)
+            f = encode.force(obj.wrench[i].force, i)
+            tq = encode.torque(obj.wrench[i].torque, i)
+            msg.update(tr)
+            msg.update(r)
+            msg.update(l)
+            msg.update(a)
+            msg.update(f)
+            msg.update(tq)
         msg.update(h)
-        msg.update(tr)
-        msg.update(r)
-        msg.update(l)
-        msg.update(a)
-        msg.update(f)
-        msg.update(tq)
         return(msg)
 
     def multi_echo_laser_scan(cls, obj):
@@ -368,12 +369,14 @@ class Decode():
 
     def multi_dof_joint_state(cls, msg, obj):
         obj.header = decode.header(msg, obj.header, "")
-        obj.transforms.translation = decode.translation(msg, obj.transforms.translation, "")
-        obj.transforms.rotation = decode.rotation(msg, obj.transforms.rotation, "")
-        obj.twist.linear = decode.linear(msg, obj.twist.linear, "")
-        obj.twist.angular = decode.angular(msg, obj.twist.angular, "")
-        obj.wrench.force = decode.force(msg, obj.wrench.force, "")
-        obj.wrench.torque = decode.torque(msg, obj.wrench.torque, "")
+        obj.joint_names = msg["joint_names"]
+        for i in msg['joint_names']:
+            obj.transforms[i].translation = decode.translation(msg, obj.transforms[i].translation, i)
+            obj.transforms[i].rotation = decode.rotation(msg, obj.transforms[i].rotation, i)
+            obj.twist[i].linear = decode.linear(msg, obj.twist[i].linear, i)
+            obj.twist[i].angular = decode.angular(msg, obj.twist[i].angular, i)
+            obj.wrench[i].force = decode.force(msg, obj.wrench[i].force, i)
+            obj.wrench[i].torque = decode.torque(msg, obj.wrench[i].torque, i)
         return(obj)
 
     def multi_echo_laser_scan(cls, msg, obj):
