@@ -116,8 +116,49 @@ class Encode():
         msg["%srange_max" %i] = obj.range_max
         return(msg)
 
+# ------------------ SR_Robot Messages -----------------------------
+    def biotacs(cls, obj, i):
+        msg = {}
+        msg["%s_pac0" %i] = obj.pac0
+        msg["%s_pac1" %i] = obj.pac1
+        msg["%s_pdc" %i] = obj.pdc
+        msg["%s_tac" %i] = obj.tac
+        msg["%s_tdc" %i] = obj.tdc
+        msg["%s_electrodes" %i] = obj.electrodes
+        return(msg)
 
-# =========================== Decode Functions ==============================================
+    def grasp_points(cls, obj, i):
+        msg = {}
+        msg["%s_positions" %i] = obj.positions
+        msg["%s_velocities" %i] = obj.velocities
+        msg["%s_accelerations" %i] = obj.accelerations
+        msg["%s_effort" %i] = obj.effort
+        msg["%s_time_from_start" %i] = obj.time_from_start
+        return(msg)
+
+    def tip(cls, obj, i):
+        msg = {}
+        msg["%s_tip_name" %i] = obj.tip_name
+        msg["%s_tip_pos_x" %i] = obj.tip_pos_x
+        msg["%s_tip_pos_y" %i] = obj.tip_pos_y
+        msg["%s_tip_pos_z" %i] = obj.tip_pos_z
+        msg["%s_tip_orientation_rho" %i] = obj.tip_orientation_rho
+        msg["%s_tip_orientation_theta" %i] = obj.tip_orientation_theta
+        msg["%s_tip_orientation_sigma" %i] = obj.tip_orientation_sigma
+        return(msg)
+
+    def joint(cls, obj, i):
+        msg = {}
+        msg["%s_joint_name" %i] = obj.joint_name
+        msg["%s_joint_position" %i] = obj.joint_position
+        msg["%s_joint_target" %i] = obj.joint_target
+        msg["%s_joint_torque" %i] = obj.joint_torque
+        msg["%s_joint_temperature" %i] = obj.joint_temperature
+        msg["%s_joint_current" %i] = obj.joint_current
+        msg["%s_error_flag" %i] = obj.error_flag
+        return(msg)
+
+# =========================== Decode Functions ===========================================
 
 class Decode():
     def __init__(self):
@@ -225,4 +266,42 @@ class Decode():
         obj.scan_time = msg["%sscan_time" %i]
         obj.range_min = msg["%srange_min" %i]
         obj.range_max = msg["%srange_max" %i]
+        return(obj)
+
+# ------------------ SR_Robot Messages -----------------------------
+    def biotacs(cls, msg, obj, i):
+        obj.pac0 = msg["%s_pac0" %i]
+        obj.pac1 = msg["%s_pac1" %i]
+        obj.pdc = msg["%s_pdc" %i]
+        obj.tac = msg["%s_tac" %i]
+        obj.tdc = msg["%s_tdc" %i]
+        obj.electrodes = msg["%s_electrodes" %i]
+        return(obj)
+
+    def grasp_points(cls, msg, obj, i):
+        obj.positions = msg["%s_positions" %i]
+        obj.velocities = msg["%s_velocities" %i]
+        obj.accelerations = msg["%s_accelerations" %i]
+        obj.effort = msg["%s_effort" %i]
+        obj.time_from_start = msg["%s_time_from_start" %i]
+        return(obj)
+
+    def tip(cls, msg, obj, i):
+        obj.tip_name = msg["%s_tip_name" %i]
+        obj.tip_pos_x = msg["%s_tip_pos_x" %i]
+        obj.tip_pos_y = msg["%s_tip_pos_y" %i]
+        obj.tip_pos_z = msg["%s_tip_pos_z" %i]
+        obj.tip_orientation_rho = msg["%s_tip_orientation_rho" %i]
+        obj.tip_orientation_theta = msg["%s_tip_orientation_theta" %i]
+        obj.tip_orientation_sigma = msg["%s_tip_orientation_sigma" %i]
+        return(obj)
+
+    def joint(cls, msg, obj, i):
+        obj.joint_name = msg["%s_joint_name" %i]
+        obj.joint_position = msg["%s_joint_position" %i]
+        obj.joint_target = msg["%s_joint_target" %i]
+        obj.joint_torque = msg["%s_joint_torque" %i]
+        obj.joint_temperature = msg["%s_joint_temperature" %i]
+        obj.joint_current = msg["%s_joint_current" %i]
+        obj.error_flag = msg["%s_error_flag" %i]
         return(obj)
