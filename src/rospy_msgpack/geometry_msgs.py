@@ -192,8 +192,6 @@ class Encode():
 
     def twist(self, obj):
         msg = {}
-        # lin = encode.linear(obj.linear, "")
-        # ang = encode.angular(obj.angular, "")
         lin = encode.linear(obj.linear, "")
         ang = encode.angular(obj.angular, "")
         msg.update(lin)
