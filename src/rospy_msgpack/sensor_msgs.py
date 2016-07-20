@@ -170,16 +170,18 @@ class Encode():
     def multi_echo_laser_scan(cls, obj):
         msg = {}
         h = encode.header(obj.header, "")
-        msg["angle_min"] = obj.angle_min
-        msg["angle_max"] = obj.angle_max
-        msg["angle_increment"] = obj.angle_increment
-        msg["time_increment"] = obj.time_increment
-        msg["scan_time"] = obj.scan_time
-        msg["range_min"] = obj.range_min
-        msg["range_max"] = obj.range_max
+        l = encode.laser(obj, "")
+        # msg["angle_min"] = obj.angle_min
+        # msg["angle_max"] = obj.angle_max
+        # msg["angle_increment"] = obj.angle_increment
+        # msg["time_increment"] = obj.time_increment
+        # msg["scan_time"] = obj.scan_time
+        # msg["range_min"] = obj.range_min
+        # msg["range_max"] = obj.range_max
         msg["rechoes"] = obj.ranges.echoes
         msg["iechoes"] = obj.intensities.echoes
         msg.update(h)
+        msg.update(l)
         return(msg)
 
     # def nav_sat_fix(cls, obj):
@@ -193,12 +195,14 @@ class Encode():
     def point_cloud(cls, obj):
         msg = {}
         h = encode.header(obj.header, "")
-        msg["x"] = obj.points.x
-        msg["y"] = obj.points.y
-        msg["z"] = obj.points.z
+        p = encode.point(obj.points, "")
+        # msg["x"] = obj.points.x
+        # msg["y"] = obj.points.y
+        # msg["z"] = obj.points.z
         msg["name"] = obj.channels.name
         msg["values"] = obj.channels.values
         msg. update(h)
+        msg.update(p)
         return(msg)
 
     # def point_cloud_2(cls, obj):
@@ -374,22 +378,24 @@ class Decode():
 
     def multi_echo_laser_scan(cls, msg, obj):
         obj.header = decode.header(msg, obj.header, "")
-        obj.angle_min = msg["angle_min"]
-        obj.angle_max = msg["angle_max"]
-        obj.angle_increment = msg["angle_increment"]
-        obj.time_increment = msg["time_increment"]
-        obj.scan_time = msg["scan_time"]
-        obj.range_min = msg["range_min"]
-        obj.range_max = msg["range_max"]
+        obj = decode.laser(msg, obj, "")
+        # obj.angle_min = msg["angle_min"]
+        # obj.angle_max = msg["angle_max"]
+        # obj.angle_increment = msg["angle_increment"]
+        # obj.time_increment = msg["time_increment"]
+        # obj.scan_time = msg["scan_time"]
+        # obj.range_min = msg["range_min"]
+        # obj.range_max = msg["range_max"]
         obj.ranges.echoes = msg["rechoes"]
         obj.intensities.echoes = msg["iechoes"]
         return(obj)
 
     def point_cloud(cls, msg, obj):
         obj.header = decode.header(msg, obj.header, "")
-        obj.points.x = msg["x"]
-        obj.points.y = msg["y"]
-        obj.points.z = msg["z"]
+        obj.points = decode.point(msg, obj.points, "")
+        # obj.points.x = msg["x"]
+        # obj.points.y = msg["y"]
+        # obj.points.z = msg["z"]
         obj.channels.name = msg["name"]
         obj.channels.values = msg["values"]
         return(obj)
