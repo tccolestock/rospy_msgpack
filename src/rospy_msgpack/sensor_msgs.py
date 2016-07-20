@@ -4,7 +4,6 @@ from rospy_msgpack import interpret
 encode = interpret.Encode()
 decode = interpret.Decode()
 
-# msg["key"] = obj.path.attribute
 class Encode():
     def __init__(self):
         pass
@@ -74,14 +73,8 @@ class Encode():
         o = encode.orientation(obj.orientation, "")
         msg["orientation_covariance"] = obj.orientation_covariance
         av = encode.xyz(obj.angular_velocity, "ang_", "velo")
-        # msg["ax"] = obj.angular_velocity.x
-        # msg["ay"] = obj.angular_velocity.y
-        # msg["az"] = obj.angular_velocity.z
         msg["angular_velocity_covariance"] = obj.angular_velocity_covariance
         la = encode.xyz(obj.linear_acceleration, "lin_", "accel")
-        # msg["lx"] = obj.linear_acceleration.x
-        # msg["ly"] = obj.linear_acceleration.y
-        # msg["lz"] = obj.linear_acceleration.z
         msg["linear_acceleration_covariance"] = obj.linear_acceleration_covariance
         msg.update(h)
         msg.update(o)
@@ -123,13 +116,6 @@ class Encode():
         msg = {}
         h = encode.header(obj.header, "")
         l = encode.laser(obj, "")
-        # msg["angle_min"] = obj.angle_min
-        # msg["angle_max"] = obj.angle_max
-        # msg["angle_increment"] = obj.angle_increment
-        # msg["time_increment"] = obj.time_increment
-        # msg["scan_time"] = obj.scan_time
-        # msg["range_min"] = obj.range_min
-        # msg["range_max"] = obj.range_max
         msg["ranges"] = obj.ranges
         msg["intensities"] = obj.intensities
         msg.update(h)
@@ -140,9 +126,6 @@ class Encode():
         msg = {}
         h = encode.header(obj.header, "")
         mf = encode.xyz(obj.magnetic_field, "", "mag")
-        # msg["x"] = obj.magnetic_field.x
-        # msg["y"] = obj.magnetic_field.y
-        # msg["z"] = obj.magnetic_field.z
         msg["magnetic_field_covariance"] = obj.magnetic_field_covariance
         msg.update(h)
         msg.update(mf)
@@ -172,13 +155,6 @@ class Encode():
         msg = {}
         h = encode.header(obj.header, "")
         l = encode.laser(obj, "")
-        # msg["angle_min"] = obj.angle_min
-        # msg["angle_max"] = obj.angle_max
-        # msg["angle_increment"] = obj.angle_increment
-        # msg["time_increment"] = obj.time_increment
-        # msg["scan_time"] = obj.scan_time
-        # msg["range_min"] = obj.range_min
-        # msg["range_max"] = obj.range_max
         msg["rechoes"] = obj.ranges.echoes
         msg["iechoes"] = obj.intensities.echoes
         msg.update(h)
@@ -197,9 +173,6 @@ class Encode():
         msg = {}
         h = encode.header(obj.header, "")
         p = encode.point(obj.points, "")
-        # msg["x"] = obj.points.x
-        # msg["y"] = obj.points.y
-        # msg["z"] = obj.points.z
         msg["name"] = obj.channels.name
         msg["values"] = obj.channels.values
         msg. update(h)
@@ -258,7 +231,6 @@ class Decode():
     def __init__(self):
         pass
 
-
     def camera_info(cls, msg, obj):
         obj.header = decode.header(msg, obj.header, "")
         obj.height = msg['height']
@@ -311,23 +283,13 @@ class Decode():
         obj.orientation = decode.orientation(msg, obj.orientation, "")
         obj.orientation_covariance = msg["orientation_covariance"]
         obj.angular_velocity = decode.xyz(msg, obj.angular_velocity, "ang_", "velo")
-        # obj.angular_velocity.x = msg["ax"]
-        # obj.angular_velocity.y = msg["ay"]
-        # obj.angular_velocity.z = msg["az"]
         obj.angular_velocity_covariance = msg["angular_velocity_covariance"]
         obj.linear_acceleration = decode.xyz(msg, obj.linear_acceleration, "lin_", "accel")
-        # obj.linear_acceleration.x = msg["lx"]
-        # obj.linear_acceleration.y = msg["ly"]
-        # obj.linear_acceleration.z = msg["lz"]
         obj.linear_acceleration_covariance = msg["linear_acceleration_covariance"]
         return(obj)
 
     def joint_state(self, msg, obj):
-        # js = JointState()
-        obj.header.seq = msg['seq']
-        obj.header.stamp.secs = msg['secs']
-        obj.header.stamp.nsecs = msg['nsecs']
-        obj.header.frame_id = msg['frame_id']
+        obj.header = decode.header(msg, obj.header, "")
         obj.name = msg['name']
         obj.position = msg['position']
         obj.velocity = msg['velocity']
@@ -347,13 +309,6 @@ class Decode():
     def laser_scan(cls, msg, obj):
         obj.header = decode.header(msg, obj.header, "")
         obj = decode.laser(msg, obj, "")
-        # obj.angle_min = msg["angle_min"]
-        # obj.angle_max = msg["angle_max"]
-        # obj.angle_increment = msg["angle_increment"]
-        # obj.time_increment = msg["time_increment"]
-        # obj.scan_time = msg["scan_time"]
-        # obj.range_min = msg["range_min"]
-        # obj.range_max = msg["range_max"]
         obj.ranges = msg["ranges"]
         obj.intensities = msg["intensities"]
         return(obj)
@@ -361,9 +316,6 @@ class Decode():
     def magnetic_field(cls, msg, obj):
         obj.header = decode.header(msg, obj.header, "")
         obj.magnetic_field = decode.xyz(msg, obj.magnetic_field, "", "mag")
-        # obj.magnetic_field.x = msg["x"]
-        # obj.magnetic_field.y = msg["y"]
-        # obj.magnetic_field.z = msg["z"]
         obj.magnetic_field_covariance = msg["magnetic_field_covariance"]
         return(obj)
 
@@ -382,13 +334,6 @@ class Decode():
     def multi_echo_laser_scan(cls, msg, obj):
         obj.header = decode.header(msg, obj.header, "")
         obj = decode.laser(msg, obj, "")
-        # obj.angle_min = msg["angle_min"]
-        # obj.angle_max = msg["angle_max"]
-        # obj.angle_increment = msg["angle_increment"]
-        # obj.time_increment = msg["time_increment"]
-        # obj.scan_time = msg["scan_time"]
-        # obj.range_min = msg["range_min"]
-        # obj.range_max = msg["range_max"]
         obj.ranges.echoes = msg["rechoes"]
         obj.intensities.echoes = msg["iechoes"]
         return(obj)
@@ -396,9 +341,6 @@ class Decode():
     def point_cloud(cls, msg, obj):
         obj.header = decode.header(msg, obj.header, "")
         obj.points = decode.point(msg, obj.points, "")
-        # obj.points.x = msg["x"]
-        # obj.points.y = msg["y"]
-        # obj.points.z = msg["z"]
         obj.channels.name = msg["name"]
         obj.channels.values = msg["values"]
         return(obj)
