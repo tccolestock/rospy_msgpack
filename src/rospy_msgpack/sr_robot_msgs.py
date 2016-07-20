@@ -1,29 +1,32 @@
 
-from rospy_msgpack import header
+from rospy_msgpack import interpret
+
+encode = interpret.Encode()
+decode = interpret.Decode()
 
 
-class Functions():
-    def __init__(self):
-        pass
-
-    def biotacs_encode(cls, obj, i):
-        msg = {}
-        msg["%spac0" %i] = obj.pac0
-        msg["%spac1" %i] = obj.pac1
-        msg["%spdc" %i] = obj.pdc
-        msg["%stac" %i] = obj.tac
-        msg["%stdc" %i] = obj.tdc
-        msg["%selectrodes" %i] = obj.electrodes
-        return(msg)
-
-    def biotacs_decode(cls, msg, obj, i):
-        obj.pac0 = msg["%spac0" %i]
-        obj.pac1 = msg["%spac1" %i]
-        obj.pdc = msg["%spdc" %i]
-        obj.tac = msg["%stac" %i]
-        obj.tdc = msg["%stdc" %i]
-        obj.electrodes = msg["%selectrodes" %i]
-        return(obj)
+# class Functions():
+#     def __init__(self):
+#         pass
+#
+#     def biotacs_encode(cls, obj, i):
+#         msg = {}
+#         msg["%spac0" %i] = obj.pac0
+#         msg["%spac1" %i] = obj.pac1
+#         msg["%spdc" %i] = obj.pdc
+#         msg["%stac" %i] = obj.tac
+#         msg["%stdc" %i] = obj.tdc
+#         msg["%selectrodes" %i] = obj.electrodes
+#         return(msg)
+#
+#     def biotacs_decode(cls, msg, obj, i):
+#         obj.pac0 = msg["%spac0" %i]
+#         obj.pac1 = msg["%spac1" %i]
+#         obj.pdc = msg["%spdc" %i]
+#         obj.tac = msg["%stac" %i]
+#         obj.tdc = msg["%stdc" %i]
+#         obj.electrodes = msg["%selectrodes" %i]
+#         return(obj)
 
 
 
@@ -34,14 +37,14 @@ class Encode():
 
     def aux_spi_data(cls, obj):
         msg = {}
-        h = header.Header().encode(obj, "")
+        h = encode.header(obj.header, "")
         msg["sensors"] = obj.sensors
         msg.update(h)
         return(msg)
 
     def biotac(cls, obj):
         msg = {}
-        bio = Functions().biotacs_encode(obj, "")
+        bio = encode.biotacs(obj, "")
         msg.update(bio)
         # msg["pac0"] = obj.pac0
         # msg["pac1"] = obj.pac1
@@ -53,11 +56,11 @@ class Encode():
 
     def biotac_all(cls, obj):
         msg = {}
-        h = header.Header().encode(obj, "")
+        h = encode.header(obj.header, "")
         msg.update(h)
         # bio = cls.biotac(obj.tactiles)
         for i in range(5):
-            bio = Functions().biotacs_encode(obj.tactiles[i], i)
+            bio = encode.biotacs(obj.tactiles[i], i)
             msg.update(bio)
             # msg["%spac0" %i] = obj.tactiles[i].pac0
             # msg["%spac1" %i] = obj.tactiles[i].pac1
@@ -73,7 +76,7 @@ class Encode():
 
     def ethercat_debug(cls, obj):
         msg = {}
-        h = header.Header().encode(obj)
+        h = encode.header(obj.header, "")
         msg["sensors"] = obj.sensors
         msg["data"] = obj.motor_data_type.data
         msg["which_motors"] = obj.which_motors
@@ -101,75 +104,101 @@ class Encode():
         msg["max_contact_force"] = obj.grasps.max_contact_force
         msg["allowed_touch_objects"] = obj.grasps.allowed_touch_objects
         # pre_grasp_posture
-        msg["preseq"] = obj.grasps.pre_grasp_posture.header.seq
-        msg["presecs"] = obj.grasps.pre_grasp_posture.header.stamp.secs
-        msg["prensecs"] = obj.grasps.pre_grasp_posture.header.stamp.nsecs
-        msg["preframe_id"] = obj.grasps.pre_grasp_posture.header.frame_id
+        preh = encode.header(obj.grasps.pre_grasp_posture.header, "pre")
         msg["prejoint_names"] = obj.grasps.pre_grasp_posture.joint_names
-        msg["prepositions"] = obj.grasps.pre_grasp_posture.points.positions
-        msg["prevelocities"] = obj.grasps.pre_grasp_posture.points.velocities
-        msg["preaccelerations"] = obj.grasps.pre_grasp_posture.points.accelerations
-        msg["preeffort"] = obj.grasps.pre_grasp_posture.points.effort
-        msg["pretime_from_start"] = obj.grasps.pre_grasp_posture.points.time_from_start
+        pre_grasp = encode.grasp_points(obj.grasps.pre_grasp_posture.points, "pre")
+        # msg["preseq"] = obj.grasps.pre_grasp_posture.header.seq
+        # msg["presecs"] = obj.grasps.pre_grasp_posture.header.stamp.secs
+        # msg["prensecs"] = obj.grasps.pre_grasp_posture.header.stamp.nsecs
+        # msg["preframe_id"] = obj.grasps.pre_grasp_posture.header.frame_id
+        # msg["prepositions"] = obj.grasps.pre_grasp_posture.points.positions
+        # msg["prevelocities"] = obj.grasps.pre_grasp_posture.points.velocities
+        # msg["preaccelerations"] = obj.grasps.pre_grasp_posture.points.accelerations
+        # msg["preeffort"] = obj.grasps.pre_grasp_posture.points.effort
+        # msg["pretime_from_start"] = obj.grasps.pre_grasp_posture.points.time_from_start
         # grasp_posture
-        msg["seq"] = obj.grasps.grasp_posture.header.seq
-        msg["secs"] = obj.grasps.grasp_posture.header.stamp.secs
-        msg["nsecs"] = obj.grasps.grasp_posture.header.stamp.nsecs
-        msg["frame_id"] = obj.grasps.grasp_posture.header.frame_id
+        postureh = encode.header(obj.grasps.grasp_posture.header, "posture")
         msg["joint_names"] = obj.grasps.grasp_posture.joint_names
-        msg["positions"] = obj.grasps.grasp_posture.points.positions
-        msg["velocities"] = obj.grasps.grasp_posture.points.velocities
-        msg["accelerations"] = obj.grasps.grasp_posture.points.accelerations
-        msg["effort"] = obj.grasps.grasp_posture.points.effort
-        msg["time_from_start"] = obj.grasps.grasp_posture.points.time_from_start
+        posture_grasp = encode.grasp_points(obj.grasps.grasp_posture.points, "posture")
+        # msg["seq"] = obj.grasps.grasp_posture.header.seq
+        # msg["secs"] = obj.grasps.grasp_posture.header.stamp.secs
+        # msg["nsecs"] = obj.grasps.grasp_posture.header.stamp.nsecs
+        # msg["frame_id"] = obj.grasps.grasp_posture.header.frame_id
+        # msg["positions"] = obj.grasps.grasp_posture.points.positions
+        # msg["velocities"] = obj.grasps.grasp_posture.points.velocities
+        # msg["accelerations"] = obj.grasps.grasp_posture.points.accelerations
+        # msg["effort"] = obj.grasps.grasp_posture.points.effort
+        # msg["time_from_start"] = obj.grasps.grasp_posture.points.time_from_start
         # grasp_pose
-        msg["poseseq"] = obj.grasps.grasp_pose.header.seq
-        msg["posesecs"] = obj.grasps.grasp_pose.header.stamp.secs
-        msg["posensecs"] = obj.grasps.grasp_pose.header.stamp.nsecs
-        msg["poseframe_id"] = obj.grasps.grasp_pose.header.frame_id
-        msg["px"] = obj.grasps.grasp_pose.pose.position.x
-        msg["py"] = obj.grasps.grasp_pose.pose.position.y
-        msg["pz"] = obj.grasps.grasp_pose.pose.position.z
-        msg["ox"] = obj.grasps.grasp_pose.pose.orientation.x
-        msg["oy"] = obj.grasps.grasp_pose.pose.orientation.y
-        msg["oz"] = obj.grasps.grasp_pose.pose.orientation.z
-        msg["ow"] = obj.grasps.grasp_pose.pose.orientation.w
+        poseh = encode.header(obj.grasps.grasp_pose.header, "pose")
+        posep = encode.position(obj.grasps.grasp_pose.pose.position, "pose")
+        poseo = encode.orientation(obj.grasps.grasp_pose.pose.orientation, "pose")
+        # msg["poseseq"] = obj.grasps.grasp_pose.header.seq
+        # msg["posesecs"] = obj.grasps.grasp_pose.header.stamp.secs
+        # msg["posensecs"] = obj.grasps.grasp_pose.header.stamp.nsecs
+        # msg["poseframe_id"] = obj.grasps.grasp_pose.header.frame_id
+        # msg["px"] = obj.grasps.grasp_pose.pose.position.x
+        # msg["py"] = obj.grasps.grasp_pose.pose.position.y
+        # msg["pz"] = obj.grasps.grasp_pose.pose.position.z
+        # msg["ox"] = obj.grasps.grasp_pose.pose.orientation.x
+        # msg["oy"] = obj.grasps.grasp_pose.pose.orientation.y
+        # msg["oz"] = obj.grasps.grasp_pose.pose.orientation.z
+        # msg["ow"] = obj.grasps.grasp_pose.pose.orientation.w
         # pre_grasp_approach
-        msg["appseq"] = obj.grasps.pre_grasp_approach.direction.header.seq
-        msg["appsecs"] = obj.grasps.pre_grasp_approach.direction.header.stamp.secs
-        msg["appnsecs"] = obj.grasps.pre_grasp_approach.direction.header.stamp.nsecs
-        msg["appframe_id"] = obj.grasps.pre_grasp_approach.direction.header.frame_id
-        msg["appx"] = obj.grasps.pre_grasp_approach.direction.vector.x
-        msg["appy"] = obj.grasps.pre_grasp_approach.direction.vector.y
-        msg["appz"] = obj.grasps.pre_grasp_approach.direction.vector.z
+        apph = encode.header(obj.grasps.pre_grasp_approach.direction.header, "app")
+        appv = encode.vector(obj.grasps.pre_grasp_approach.direction.vector, "app")
         msg["appdesired_distance"] = obj.grasps.pre_grasp_approach.desired_distance
         msg["appmin_distance"] = obj.grasps.pre_grasp_approach.min_distance
+        # msg["appseq"] = obj.grasps.pre_grasp_approach.direction.header.seq
+        # msg["appsecs"] = obj.grasps.pre_grasp_approach.direction.header.stamp.secs
+        # msg["appnsecs"] = obj.grasps.pre_grasp_approach.direction.header.stamp.nsecs
+        # msg["appframe_id"] = obj.grasps.pre_grasp_approach.direction.header.frame_id
+        # msg["appx"] = obj.grasps.pre_grasp_approach.direction.vector.x
+        # msg["appy"] = obj.grasps.pre_grasp_approach.direction.vector.y
+        # msg["appz"] = obj.grasps.pre_grasp_approach.direction.vector.z
         # post_grasp_retreat
-        msg["retseq"] = obj.grasps.post_grasp_retreat.direction.header.seq
-        msg["retsecs"] = obj.grasps.post_grasp_retreat.direction.header.stamp.secs
-        msg["retnsecs"] = obj.grasps.post_grasp_retreat.direction.header.stamp.nsecs
-        msg["retframe_id"] = obj.grasps.post_grasp_retreat.direction.header.frame_id
-        msg["retx"] = obj.grasps.post_grasp_retreat.direction.vector.x
-        msg["rety"] = obj.grasps.post_grasp_retreat.direction.vector.y
-        msg["retz"] = obj.grasps.post_grasp_retreat.direction.vector.z
+        reth = encode.header(obj.grasps.post_grasp_retreat.direction.header, "ret")
+        retv = encode.vector(obj.grasps.post_grasp_retreat.direction.vector, "ret")
         msg["retdesired_distance"] = obj.grasps.post_grasp_retreat.desired_distance
         msg["retmin_distance"] = obj.grasps.post_grasp_retreat.min_distance
+        # msg["retseq"] = obj.grasps.post_grasp_retreat.direction.header.seq
+        # msg["retsecs"] = obj.grasps.post_grasp_retreat.direction.header.stamp.secs
+        # msg["retnsecs"] = obj.grasps.post_grasp_retreat.direction.header.stamp.nsecs
+        # msg["retframe_id"] = obj.grasps.post_grasp_retreat.direction.header.frame_id
+        # msg["retx"] = obj.grasps.post_grasp_retreat.direction.vector.x
+        # msg["rety"] = obj.grasps.post_grasp_retreat.direction.vector.y
+        # msg["retz"] = obj.grasps.post_grasp_retreat.direction.vector.z
         # post_place_retreat
-        msg["plseq"] = obj.grasps.post_place_retreat.direction.header.seq
-        msg["plsecs"] = obj.grasps.post_place_retreat.direction.header.stamp.secs
-        msg["plnsecs"] = obj.grasps.post_place_retreat.direction.header.stamp.nsecs
-        msg["plframe_id"] = obj.grasps.post_place_retreat.direction.header.frame_id
-        msg["plx"] = obj.grasps.post_place_retreat.direction.vector.x
-        msg["ply"] = obj.grasps.post_place_retreat.direction.vector.y
-        msg["plz"] = obj.grasps.post_place_retreat.direction.vector.z
+        plh = encode.header(obj.grasps.post_place_retreat.direction.header, "place")
+        plv = encode.vector(obj.grasps.post_place_retreat.direction.vector, "place")
         msg["pldesired_distance"] = obj.grasps.post_place_retreat.desired_distance
         msg["plmin_distance"] = obj.grasps.post_place_retreat.min_distance
+        # msg["plseq"] = obj.grasps.post_place_retreat.direction.header.seq
+        # msg["plsecs"] = obj.grasps.post_place_retreat.direction.header.stamp.secs
+        # msg["plnsecs"] = obj.grasps.post_place_retreat.direction.header.stamp.nsecs
+        # msg["plframe_id"] = obj.grasps.post_place_retreat.direction.header.frame_id
+        # msg["plx"] = obj.grasps.post_place_retreat.direction.vector.x
+        # msg["ply"] = obj.grasps.post_place_retreat.direction.vector.y
+        # msg["plz"] = obj.grasps.post_place_retreat.direction.vector.z
         # return
+        msg.update(preh)
+        msg.update(pre_grasp)
+        msg.update(postureh)
+        msg.update(posture_grasp)
+        msg.update(poseh)
+        msg.update(posep)
+        msg.update(poseo)
+        msg.update(apph)
+        msg.update(appv)
+        msg.update(reth)
+        msg.update(retv)
+        msg.update(plh)
+        msg.update(plv)
         return(msg)
 
     def joint_controller_state(cls, obj):
         msg = {}
-        h = header.Header().encode(obj)
+        h = encode.header(obj.header, "")
         msg["set_point"] = obj.set_point
         msg["process_value"] = obj.process_value
         msg["process_value_dot"] = obj.process_value_dot
@@ -192,7 +221,7 @@ class Encode():
 
     def joint_muscle_position_controller_state(cls, obj):
         msg = {}
-        h = header.Header().encode(obj)
+        h = encode.header(obj.header, "")
         msg["set_point"] = obj.set_point
         msg["process_value"] = obj.process_value
         msg["process_value_dot"] = obj.process_value_dot
@@ -219,7 +248,7 @@ class Encode():
 
     def joint_muscle_valve_controller_state(cls, obj):
         msg = {}
-        h = header.Header().encode(obj)
+        h = encode.header(obj.header, "")
         msg["set_valve_muscle_0"] = obj.set_valve_muscle_0
         msg["set_valve_muscle_1"] = obj.set_valve_muscle_1
         msg["set_duration_muscle_0"] = obj.set_duration_muscle_0
@@ -243,9 +272,10 @@ class Encode():
 
     def mid_prox_data_all(cls, obj):
         msg = {}
-        h = header.Header().encode(obj)
-        msg["middle"] = obj.sensors.middle
-        msg["proximal"] = obj.sensors.proximal
+        h = encode.header(obj.header, "")
+        for i in range(5):
+            msg["%s_middle" %i] = obj.sensors[i].middle
+            msg["%s_proximal" %i] = obj.sensors[i].proximal
         msg.update(h)
         return(msg)
 
@@ -263,24 +293,30 @@ class Encode():
 
     def shadow_contact_state_stamped(cls, obj):
         msg = {}
-        h = header.Header().encode(obj)
-        msg["tanx"] = obj.tangential_force.x
-        msg["tany"] = obj.tangential_force.y
-        msg["tanz"] = obj.tangential_force.z
-        msg["posx"] = obj.contact_position.x
-        msg["posy"] = obj.contact_position.y
-        msg["posz"] = obj.contact_position.z
-        msg["normx"] = obj.contact_normal.x
-        msg["normy"] = obj.contact_normal.y
-        msg["normz"] = obj.contact_normal.z
+        h = encode.header(obj.header, "")
+        f = encode.force(obj.tangential_force, "tan")
+        cp = encode.position(obj.contact_position, "cont")
+        cn = encode.xyz(obj.contact_normal, "cont", "norm")
+        # msg["tanx"] = obj.tangential_force.x
+        # msg["tany"] = obj.tangential_force.y
+        # msg["tanz"] = obj.tangential_force.z
+        # msg["posx"] = obj.contact_position.x
+        # msg["posy"] = obj.contact_position.y
+        # msg["posz"] = obj.contact_position.z
+        # msg["normx"] = obj.contact_normal.x
+        # msg["normy"] = obj.contact_normal.y
+        # msg["normz"] = obj.contact_normal.z
         msg["Fnormal"] = obj.Fnormal
         msg["Ltorque"] = obj.Ltorque
         msg.update(h)
+        msg.update(f)
+        msg.update(cp)
+        msg.update(cn)
         return(msg)
 
     def shadow_pst(cls, obj):
         msg = {}
-        h = header.Header().encode(obj)
+        h = encode.header(obj.header, "")
         msg["pressure"] = obj.pressure
         msg["temperature"] = obj.temperature
         msg.update(h)
@@ -293,7 +329,7 @@ class Encode():
 
     def tactile_array(cls, obj):
         msg = {}
-        h = header.Header().encode(obj)
+        h = encode.header(obj.header, "")
         msg["data"] = obj.data.data.data
         msg.update(h)
         return(msg)
@@ -305,45 +341,53 @@ class Encode():
 
     def ubi0_all(cls, obj):
         msg = {}
-        h = header.Header().encode(obj)
-        msg["distal"] = obj.tactiles.distal
+        h = encode.header(obj.header, "")
+        for i in range(5):
+            msg["%s_distal" %i] = obj.tactiles[i].distal
         msg.update(h)
         return(msg)
 
     def cartesian_data(cls, obj):
         msg = {}
         msg["cartesian_positions_length"] = obj.cartesian_positions_length
-        msg["tip_name"] = obj.cartesian_positions.tip_name
-        msg["tip_pos_x"] = obj.cartesian_positions.tip_pos_x
-        msg["tip_pos_y"] = obj.cartesian_positions.tip_pos_y
-        msg["tip_pos_z"] = obj.cartesian_positions.tip_pos_z
-        msg["tip_orientation_rho"] = obj.cartesian_positions.tip_orientation_rho
-        msg["tip_orientation_theta"] = obj.cartesian_positions.tip_orientation_theta
-        msg["tip_orientation_sigma"] = obj.cartesian_positions.tip_orientation_sigma
+        for i in range(msg['cartesian_positions_length']):
+            t = encode.tip(obj.cartesian_positions[i], i)
+            msg.update(t)
+        # msg["tip_name"] = obj.cartesian_positions.tip_name
+        # msg["tip_pos_x"] = obj.cartesian_positions.tip_pos_x
+        # msg["tip_pos_y"] = obj.cartesian_positions.tip_pos_y
+        # msg["tip_pos_z"] = obj.cartesian_positions.tip_pos_z
+        # msg["tip_orientation_rho"] = obj.cartesian_positions.tip_orientation_rho
+        # msg["tip_orientation_theta"] = obj.cartesian_positions.tip_orientation_theta
+        # msg["tip_orientation_sigma"] = obj.cartesian_positions.tip_orientation_sigma
         return(msg)
 
     def cartesian_position(cls, obj):
         msg = {}
-        msg["tip_name"] = obj.tip_name
-        msg["tip_pos_x"] = obj.tip_pos_x
-        msg["tip_pos_y"] = obj.tip_pos_y
-        msg["tip_pos_z"] = obj.tip_pos_z
-        msg["tip_orientation_rho"] = obj.tip_orientation_rho
-        msg["tip_orientation_theta"] = obj.tip_orientation_theta
-        msg["tip_orientation_sigma"] = obj.tip_orientation_sigma
+        t = encode.tip(obj, "")
+        # msg["tip_name"] = obj.tip_name
+        # msg["tip_pos_x"] = obj.tip_pos_x
+        # msg["tip_pos_y"] = obj.tip_pos_y
+        # msg["tip_pos_z"] = obj.tip_pos_z
+        # msg["tip_orientation_rho"] = obj.tip_orientation_rho
+        # msg["tip_orientation_theta"] = obj.tip_orientation_theta
+        # msg["tip_orientation_sigma"] = obj.tip_orientation_sigma
         return(msg)
 
     def command(cls, obj):
         msg = {}
         msg["command_type"] = obj.command_type
         msg["sendupdate_length"] = obj.sendupdate_command.sendupdate_length
-        msg["joint_name"] = obj.sendupdate_command.sendupdate_list.joint_name
-        msg["joint_position"] = obj.sendupdate_command.sendupdate_list.joint_position
-        msg["joint_target"] = obj.sendupdate_command.sendupdate_list.joint_target
-        msg["joint_torque"] = obj.sendupdate_command.sendupdate_list.joint_torque
-        msg["joint_temperature"] = obj.sendupdate_command.sendupdate_list.joint_temperature
-        msg["joint_current"] = obj.sendupdate_command.sendupdate_list.joint_current
-        msg["error_flag"] = obj.sendupdate_command.sendupdate_list.error_flag
+        for i in range(msg['sendupdate_length']):
+            j = encode.joint(obj.sendupdate_command.sendupdate_list[i], i)
+            msg.update(j)
+        # msg["joint_name"] = obj.sendupdate_command.sendupdate_list.joint_name
+        # msg["joint_position"] = obj.sendupdate_command.sendupdate_list.joint_position
+        # msg["joint_target"] = obj.sendupdate_command.sendupdate_list.joint_target
+        # msg["joint_torque"] = obj.sendupdate_command.sendupdate_list.joint_torque
+        # msg["joint_temperature"] = obj.sendupdate_command.sendupdate_list.joint_temperature
+        # msg["joint_current"] = obj.sendupdate_command.sendupdate_list.joint_current
+        # msg["error_flag"] = obj.sendupdate_command.sendupdate_list.error_flag
         msg["contrlr_name"] = obj.contrlr_command.contrlr_name
         msg["list_of_parameters"] = obj.contrlr_command.list_of_parameters
         msg["length_of_list"] = obj.contrlr_command.length_of_list
@@ -365,25 +409,30 @@ class Encode():
 
     def joint(cls, obj):
         msg = {}
-        msg["joint_name"] = obj.joint_name
-        msg["joint_position"] = obj.joint_position
-        msg["joint_target"] = obj.joint_target
-        msg["joint_torque"] = obj.joint_torque
-        msg["joint_temperature"] = obj.joint_temperature
-        msg["joint_current"] = obj.joint_current
-        msg["error_flag"] = obj.error_flag
+        j = encode.joint(obj, "")
+        # msg["joint_name"] = obj.joint_name
+        # msg["joint_position"] = obj.joint_position
+        # msg["joint_target"] = obj.joint_target
+        # msg["joint_torque"] = obj.joint_torque
+        # msg["joint_temperature"] = obj.joint_temperature
+        # msg["joint_current"] = obj.joint_current
+        # msg["error_flag"] = obj.error_flag
+        msg.update(j)
         return(msg)
 
     def joints_data(cls, obj):
         msg = {}
         msg["joints_list_length"] = obj.joints_list_length
-        msg["joint_name"] = obj.joints_list.joint_name
-        msg["joint_position"] = obj.joints_list.joint_position
-        msg["joint_target"] = obj.joints_list.joint_target
-        msg["joint_torque"] = obj.joints_list.joint_torque
-        msg["joint_temperature"] = obj.joints_list.joint_temperature
-        msg["joint_current"] = obj.joints_list.joint_current
-        msg["error_flag"] = obj.joints_list.error_flag
+        for i in range(msg['joints_list_length']):
+            j = encode.joint(obj.joints_list[i], i)
+            msg.update(j)
+        # msg["joint_name"] = obj.joints_list.joint_name
+        # msg["joint_position"] = obj.joints_list.joint_position
+        # msg["joint_target"] = obj.joints_list.joint_target
+        # msg["joint_torque"] = obj.joints_list.joint_torque
+        # msg["joint_temperature"] = obj.joints_list.joint_temperature
+        # msg["joint_current"] = obj.joints_list.joint_current
+        # msg["error_flag"] = obj.joints_list.error_flag
         return(msg)
 
     def reverse_kinematics(cls, obj):
@@ -393,14 +442,17 @@ class Encode():
 
     def send_update(cls, obj):
         msg = {}
-        msg["joints_list_length"] = obj.joints_list_length
-        msg["joint_name"] = obj.sendupdate_list.joint_name
-        msg["joint_position"] = obj.sendupdate_list.joint_position
-        msg["joint_target"] = obj.sendupdate_list.joint_target
-        msg["joint_torque"] = obj.sendupdate_list.joint_torque
-        msg["joint_temperature"] = obj.sendupdate_list.joint_temperature
-        msg["joint_current"] = obj.sendupdate_list.joint_current
-        msg["error_flag"] = obj.sendupdate_list.error_flag
+        msg["sendupdate_length"] = obj.sendupdate_length
+        for i in range(msg['sendupdate_length']):
+            j = encode.joint(obj.sendupdate_list[i], i)
+            msg.update(j)
+        # msg["joint_name"] = obj.sendupdate_list.joint_name
+        # msg["joint_position"] = obj.sendupdate_list.joint_position
+        # msg["joint_target"] = obj.sendupdate_list.joint_target
+        # msg["joint_torque"] = obj.sendupdate_list.joint_torque
+        # msg["joint_temperature"] = obj.sendupdate_list.joint_temperature
+        # msg["joint_current"] = obj.sendupdate_list.joint_current
+        # msg["error_flag"] = obj.sendupdate_list.error_flag
         return(msg)
 
 # ======================================================================================
@@ -410,12 +462,12 @@ class Decode():
         pass
 
     def aux_spi_data(cls, msg,obj):
-        obj = header.Header().decode(msg, obj)
+        obj.header = decode.header(msg, obj.header, "")
         obj.sensors = msg["sensors"]
         return(obj)
 
     def biotac(cls, msg, obj):
-        obj = Functions.biotacs_decode(msg, obj, 0)
+        obj = decode.biotacs(msg, obj, "")
         # obj.pac0 = msg["pac0"]
         # obj.pac1 = msg["pac1"]
         # obj.pdc = msg["pdc"]
@@ -425,10 +477,10 @@ class Decode():
         return(obj)
 
     def biotac_all(cls, msg, obj):
-        obj = header.Header().decode(msg, obj, "")
+        obj.header = decode.header(msg, obj.header, "")
         # obj = cls.biotac(msg, obj.tactiles)
         for i in range(5):
-            obj.tactiles[i] = Functions().biotacs_decode(msg, obj.tactiles[i], i)
+            obj.tactiles[i] = decode.biotacs(msg, obj.tactiles[i], i)
             # obj.tactiles[i].pac0 = msg["%spac0" %i]
             # obj.tactiles[i].pac1 = msg["%spac1" %i]
             # obj.tactiles[i].pdc = msg["%spdc" %i]
@@ -438,7 +490,7 @@ class Decode():
         return(obj)
 
     def ethercat_debug(cls, msg, obj):
-        obj = header.Header().decode(msg, obj)
+        obj.header = decode.header(msg, obj.header, "")
         obj.sensors = msg["sensors"]
         obj.motor_data_type.data = msg["data"]
         obj.which_motors = msg["which_motors"]
@@ -463,74 +515,87 @@ class Decode():
         obj.grasps.max_contact_force = msg["max_contact_force"]
         obj.grasps.allowed_touch_objects = msg["allowed_touch_objects"]
         # pre_grasp_posture
-        obj.grasps.pre_grasp_posture.header.seq = msg["preseq"]
-        obj.grasps.pre_grasp_posture.header.stamp.secs = msg["presecs"]
-        obj.grasps.pre_grasp_posture.header.stamp.nsecs = msg["prensecs"]
-        obj.grasps.pre_grasp_posture.header.frame_id = msg["preframe_id"]
+        obj.grasps.pre_grasp_posture.header = decode.header(msg, obj.grasps.pre_grasp_posture.header, "pre")
         obj.grasps.pre_grasp_posture.joint_names = msg["prejoint_names"]
-        obj.grasps.pre_grasp_posture.points.positions = msg["prepositions"]
-        obj.grasps.pre_grasp_posture.points.velocities = msg["prevelocities"]
-        obj.grasps.pre_grasp_posture.points.accelerations = msg["preaccelerations"]
-        obj.grasps.pre_grasp_posture.points.effort = msg["preeffort"]
-        obj.grasps.pre_grasp_posture.points.time_from_start = msg["pretime_from_start"]
+        obj.grasps.pre_grasp_posture.points = decode.grasp_points(msg, obj.grasps.pre_grasp_posture.points, "pre")
+        # obj.grasps.pre_grasp_posture.header.seq = msg["preseq"]
+        # obj.grasps.pre_grasp_posture.header.stamp.secs = msg["presecs"]
+        # obj.grasps.pre_grasp_posture.header.stamp.nsecs = msg["prensecs"]
+        # obj.grasps.pre_grasp_posture.header.frame_id = msg["preframe_id"]
+        # obj.grasps.pre_grasp_posture.points.positions = msg["prepositions"]
+        # obj.grasps.pre_grasp_posture.points.velocities = msg["prevelocities"]
+        # obj.grasps.pre_grasp_posture.points.accelerations = msg["preaccelerations"]
+        # obj.grasps.pre_grasp_posture.points.effort = msg["preeffort"]
+        # obj.grasps.pre_grasp_posture.points.time_from_start = msg["pretime_from_start"]
         # grasp_posture
-        obj.grasps.grasp_posture.header.seq = msg["seq"]
-        obj.grasps.grasp_posture.header.stamp.secs = msg["secs"]
-        obj.grasps.grasp_posture.header.stamp.nsecs = msg["nsecs"]
-        obj.grasps.grasp_posture.header.frame_id = msg["frame_id"]
+        obj.grasps.grasp_posture.header = decode.header(msg, obj.grasps.grasp_posture.header, "posture")
         obj.grasps.grasp_posture.joint_names = msg["joint_names"]
-        obj.grasps.grasp_posture.points.positions = msg["positions"]
-        obj.grasps.grasp_posture.points.velocities = msg["velocities"]
-        obj.grasps.grasp_posture.points.accelerations = msg["accelerations"]
-        obj.grasps.grasp_posture.points.effort = msg["effort"]
-        obj.grasps.grasp_posture.points.time_from_start = msg["time_from_start"]
+        obj.grasps.grasp_posture.points = decode.grasp_points(msg, obj.grasps.grasp_posture.points, "posture")
+        # obj.grasps.grasp_posture.header.seq = msg["seq"]
+        # obj.grasps.grasp_posture.header.stamp.secs = msg["secs"]
+        # obj.grasps.grasp_posture.header.stamp.nsecs = msg["nsecs"]
+        # obj.grasps.grasp_posture.header.frame_id = msg["frame_id"]
+        # obj.grasps.grasp_posture.points.positions = msg["positions"]
+        # obj.grasps.grasp_posture.points.velocities = msg["velocities"]
+        # obj.grasps.grasp_posture.points.accelerations = msg["accelerations"]
+        # obj.grasps.grasp_posture.points.effort = msg["effort"]
+        # obj.grasps.grasp_posture.points.time_from_start = msg["time_from_start"]
         # grasp_pose
-        obj.grasps.grasp_pose.header.seq = msg["poseseq"]
-        obj.grasps.grasp_pose.header.stamp.secs = msg["posesecs"]
-        obj.grasps.grasp_pose.header.stamp.nsecs = msg["posensecs"]
-        obj.grasps.grasp_pose.header.frame_id = msg["poseframe_id"]
-        obj.grasps.grasp_pose.pose.position.x = msg["px"]
-        obj.grasps.grasp_pose.pose.position.y = msg["py"]
-        obj.grasps.grasp_pose.pose.position.z = msg["pz"]
-        obj.grasps.grasp_pose.pose.orientation.x = msg["ox"]
-        obj.grasps.grasp_pose.pose.orientation.y = msg["oy"]
-        obj.grasps.grasp_pose.pose.orientation.z = msg["oz"]
-        obj.grasps.grasp_pose.pose.orientation.w = msg["ow"]
+        obj.grasps.grasp_pose.header = decode.header(msg, obj.grasps.grasp_pose.header, "pose")
+        obj.grasps.grasp_pose.pose.position = decode.position(msg, obj.grasps.grasp_pose.pose.position, "pose")
+        obj.grasps.grasp_pose.pose.orientation = decode.orientation(msg, obj.grasps.grasp_pose.pose.orientation, "pose")
+        # obj.grasps.grasp_pose.header.seq = msg["poseseq"]
+        # obj.grasps.grasp_pose.header.stamp.secs = msg["posesecs"]
+        # obj.grasps.grasp_pose.header.stamp.nsecs = msg["posensecs"]
+        # obj.grasps.grasp_pose.header.frame_id = msg["poseframe_id"]
+        # obj.grasps.grasp_pose.pose.position.x = msg["px"]
+        # obj.grasps.grasp_pose.pose.position.y = msg["py"]
+        # obj.grasps.grasp_pose.pose.position.z = msg["pz"]
+        # obj.grasps.grasp_pose.pose.orientation.x = msg["ox"]
+        # obj.grasps.grasp_pose.pose.orientation.y = msg["oy"]
+        # obj.grasps.grasp_pose.pose.orientation.z = msg["oz"]
+        # obj.grasps.grasp_pose.pose.orientation.w = msg["ow"]
         # pre_grasp_approach
-        obj.grasps.pre_grasp_approach.direction.header.seq = msg["appseq"]
-        obj.grasps.pre_grasp_approach.direction.header.stamp.secs = msg["appsecs"]
-        obj.grasps.pre_grasp_approach.direction.header.stamp.nsecs = msg["appnsecs"]
-        obj.grasps.pre_grasp_approach.direction.header.frame_id = msg["appframe_id"]
-        obj.grasps.pre_grasp_approach.direction.vector.x = msg["appx"]
-        obj.grasps.pre_grasp_approach.direction.vector.y = msg["appy"]
-        obj.grasps.pre_grasp_approach.direction.vector.z = msg["appz"]
+        obj.grasps.pre_grasp_approach.direction.header = decode.header(msg, obj.grasps.pre_grasp_approach.direction.header, "app")
+        obj.grasps.pre_grasp_approach.direction.vector = decode.vector(msg, obj.grasps.pre_grasp_approach.direction.vector, "app")
         obj.grasps.pre_grasp_approach.desired_distance = msg["appdesired_distance"]
         obj.grasps.pre_grasp_approach.min_distance = msg["appmin_distance"]
+        # obj.grasps.pre_grasp_approach.direction.header.seq = msg["appseq"]
+        # obj.grasps.pre_grasp_approach.direction.header.stamp.secs = msg["appsecs"]
+        # obj.grasps.pre_grasp_approach.direction.header.stamp.nsecs = msg["appnsecs"]
+        # obj.grasps.pre_grasp_approach.direction.header.frame_id = msg["appframe_id"]
+        # obj.grasps.pre_grasp_approach.direction.vector.x = msg["appx"]
+        # obj.grasps.pre_grasp_approach.direction.vector.y = msg["appy"]
+        # obj.grasps.pre_grasp_approach.direction.vector.z = msg["appz"]
         # post_grasp_retreat
-        obj.grasps.post_grasp_retreat.direction.header.seq = msg["retseq"]
-        obj.grasps.post_grasp_retreat.direction.header.stamp.secs = msg["retsecs"]
-        obj.grasps.post_grasp_retreat.direction.header.stamp.nsecs = msg["retnsecs"]
-        obj.grasps.post_grasp_retreat.direction.header.frame_id = msg["retframe_id"]
-        obj.grasps.post_grasp_retreat.direction.vector.x = msg["retx"]
-        obj.grasps.post_grasp_retreat.direction.vector.y = msg["rety"]
-        obj.grasps.post_grasp_retreat.direction.vector.z = msg["retz"]
+        obj.grasps.post_grasp_retreat.direction.header = decode.header(msg, obj.grasps.post_grasp_retreat.direction.header, "ret")
+        obj.grasps.post_grasp_retreat.direction.vector = decode.vector(msg, obj.grasps.post_grasp_retreat.direction.vector, "ret")
         obj.grasps.post_grasp_retreat.desired_distance = msg["retdesired_distance"]
         obj.grasps.post_grasp_retreat.min_distance = msg["retmin_distance"]
+        # obj.grasps.post_grasp_retreat.direction.header.seq = msg["retseq"]
+        # obj.grasps.post_grasp_retreat.direction.header.stamp.secs = msg["retsecs"]
+        # obj.grasps.post_grasp_retreat.direction.header.stamp.nsecs = msg["retnsecs"]
+        # obj.grasps.post_grasp_retreat.direction.header.frame_id = msg["retframe_id"]
+        # obj.grasps.post_grasp_retreat.direction.vector.x = msg["retx"]
+        # obj.grasps.post_grasp_retreat.direction.vector.y = msg["rety"]
+        # obj.grasps.post_grasp_retreat.direction.vector.z = msg["retz"]
         # post_place_retreat
-        obj.grasps.post_place_retreat.direction.header.seq = msg["plseq"]
-        obj.grasps.post_place_retreat.direction.header.stamp.secs = msg["plsecs"]
-        obj.grasps.post_place_retreat.direction.header.stamp.nsecs = msg["plnsecs"]
-        obj.grasps.post_place_retreat.direction.header.frame_id = msg["plframe_id"]
-        obj.grasps.post_place_retreat.direction.vector.x = msg["plx"]
-        obj.grasps.post_place_retreat.direction.vector.y = msg["ply"]
-        obj.grasps.post_place_retreat.direction.vector.z = msg["plz"]
+        obj.grasps.post_place_retreat.direction.header = decode.header(msg, obj.grasps.post_place_retreat.direction.header, "place")
+        obj.grasps.post_place_retreat.direction.vector = decode.vector(msg, obj.grasps.post_place_retreat.direction.vector, "place")
         obj.grasps.post_place_retreat.desired_distance = msg["pldesired_distance"]
         obj.grasps.post_place_retreat.min_distance = msg["plmin_distance"]
+        # obj.grasps.post_place_retreat.direction.header.seq = msg["plseq"]
+        # obj.grasps.post_place_retreat.direction.header.stamp.secs = msg["plsecs"]
+        # obj.grasps.post_place_retreat.direction.header.stamp.nsecs = msg["plnsecs"]
+        # obj.grasps.post_place_retreat.direction.header.frame_id = msg["plframe_id"]
+        # obj.grasps.post_place_retreat.direction.vector.x = msg["plx"]
+        # obj.grasps.post_place_retreat.direction.vector.y = msg["ply"]
+        # obj.grasps.post_place_retreat.direction.vector.z = msg["plz"]
         # return
         return(obj)
 
     def joint_controller_state(cls, msg, obj):
-        obj = header.Header().decode(msg, obj)
+        obj.header = decode.header(msg, obj.header, "")
         obj.set_point = msg["set_point"]
         obj.process_value = msg["process_value"]
         obj.process_value_dot = msg["process_value_dot"]
@@ -551,7 +616,7 @@ class Decode():
         return(obj)
 
     def joint_muscle_position_controller_state(cls, msg, obj):
-        obj = header.Header().decode(msg, obj)
+        obj.header = decode.header(msg, obj.header, "")
         obj.set_point = msg["set_point"]
         obj.process_value = msg["process_value"]
         obj.process_value_dot = msg["process_value_dot"]
@@ -596,9 +661,10 @@ class Decode():
         return(obj)
 
     def mid_prox_data_all(cls, msg, obj):
-        obj = header.Header().decode(msg, obj)
-        obj.sensors.middle = msg["middle"]
-        obj.sensors.proximal = msg["proximal"]
+        obj.header = decode.header(msg, obj.header, "")
+        for i in range(5):
+            obj.sensors[i].middle = msg["%s_middle" %i]
+            obj.sensors[i].proximal = msg["%s_proximal" %i]
         return(obj)
 
     def motor_system_controls(cls, msg, obj):
@@ -613,22 +679,25 @@ class Decode():
         return(obj)
 
     def shadow_contact_state_stamped(cls, msg, obj):
-        obj = header.Header().decode(msg, obj)
-        obj.tangential_force.x = msg["tanx"]
-        obj.tangential_force.y = msg["tany"]
-        obj.tangential_force.z = msg["tanz"]
-        obj.contact_position.x = msg["posx"]
-        obj.contact_position.y = msg["posy"]
-        obj.contact_position.z = msg["posz"]
-        obj.contact_normal.x = msg["normx"]
-        obj.contact_normal.y = msg["normy"]
-        obj.contact_normal.z = msg["normz"]
+        obj.header = decode.header(msg, obj.header, "")
+        obj.tangential_force = decode.force(msg, obj.tangential_force, "tan")
+        obj.contact_position = decode.position(msg, obj.contact_position, "cont")
+        obj.contact_normal = decode.xyz(msg, obj.contact_normal, "cont", "norm")
+        # obj.tangential_force.x = msg["tanx"]
+        # obj.tangential_force.y = msg["tany"]
+        # obj.tangential_force.z = msg["tanz"]
+        # obj.contact_position.x = msg["posx"]
+        # obj.contact_position.y = msg["posy"]
+        # obj.contact_position.z = msg["posz"]
+        # obj.contact_normal.x = msg["normx"]
+        # obj.contact_normal.y = msg["normy"]
+        # obj.contact_normal.z = msg["normz"]
         obj.Fnormal = msg["Fnormal"]
         obj.Ltorque = msg["Ltorque"]
         return(obj)
 
     def shadow_pst(cls, msg, obj):
-        obj = header.Header().decode(msg, obj)
+        obj.header = decode.header(msg, obj.header, "")
         obj.pressure = msg["pressure"]
         obj.temperature = msg["temperature"]
         return(obj)
@@ -638,7 +707,7 @@ class Decode():
         return(obj)
 
     def tactile_array(cls, msg, obj):
-        obj = header.Header().decode(msg, obj)
+        obj.header = decode.header(msg, obj.header, "")
         obj.data.data.data = msg["data"]
         return(obj)
 
@@ -647,42 +716,48 @@ class Decode():
         return(obj)
 
     def ubi0_all(cls, msg, obj):
-        obj = header.Header().decode(msg, obj)
-        obj.tactiles.distal = msg["distal"]
+        obj.header = decode.header(msg, obj.header, "")
+        for i in range(5):
+            obj.tactiles[i].distal = msg["%s_distal" %i]
         return(obj)
 
     def cartesian_data(cls, msg, obj):
         obj.cartesian_positions_length = msg["cartesian_positions_length"]
-        obj.cartesian_positions.tip_name = msg["tip_name"]
-        obj.cartesian_positions.tip_pos_x = msg["tip_pos_x"]
-        obj.cartesian_positions.tip_pos_y = msg["tip_pos_y"]
-        obj.cartesian_positions.tip_pos_z = msg["tip_pos_z"]
-        obj.cartesian_positions.tip_orientation_rho = msg["tip_orientation_rho"]
-        obj.cartesian_positions.tip_orientation_theta = msg["tip_orientation_theta"]
-        obj.cartesian_positions.tip_orientation_sigma = msg["tip_orientation_sigma"]
+        for i in range(5):
+            obj.cartesian_positions[i] = decode.tip(msg, obj.cartesian_positions[i], i)
+        # obj.cartesian_positions.tip_name = msg["tip_name"]
+        # obj.cartesian_positions.tip_pos_x = msg["tip_pos_x"]
+        # obj.cartesian_positions.tip_pos_y = msg["tip_pos_y"]
+        # obj.cartesian_positions.tip_pos_z = msg["tip_pos_z"]
+        # obj.cartesian_positions.tip_orientation_rho = msg["tip_orientation_rho"]
+        # obj.cartesian_positions.tip_orientation_theta = msg["tip_orientation_theta"]
+        # obj.cartesian_positions.tip_orientation_sigma = msg["tip_orientation_sigma"]
         return(obj)
 
 
     def cartesian_position(cls, msg, obj):
-        obj.tip_name = msg["tip_name"]
-        obj.tip_pos_x = msg["tip_pos_x"]
-        obj.tip_pos_y = msg["tip_pos_y"]
-        obj.tip_pos_z = msg["tip_pos_z"]
-        obj.tip_orientation_rho = msg["tip_orientation_rho"]
-        obj.tip_orientation_theta = msg["tip_orientation_theta"]
-        obj.tip_orientation_sigma = msg["tip_orientation_sigma"]
+        obj = decode.tip(msg, obj, "")
+        # obj.tip_name = msg["tip_name"]
+        # obj.tip_pos_x = msg["tip_pos_x"]
+        # obj.tip_pos_y = msg["tip_pos_y"]
+        # obj.tip_pos_z = msg["tip_pos_z"]
+        # obj.tip_orientation_rho = msg["tip_orientation_rho"]
+        # obj.tip_orientation_theta = msg["tip_orientation_theta"]
+        # obj.tip_orientation_sigma = msg["tip_orientation_sigma"]
         return(obj)
 
     def command(cls, msg, obj):
         obj.command_type = msg["command_type"]
         obj.sendupdate_command.sendupdate_length = msg["sendupdate_length"]
-        obj.sendupdate_command.sendupdate_list.joint_name = msg["joint_name"]
-        obj.sendupdate_command.sendupdate_list.joint_position = msg["joint_position"]
-        obj.sendupdate_command.sendupdate_list.joint_target = msg["joint_target"]
-        obj.sendupdate_command.sendupdate_list.joint_torque = msg["joint_torque"]
-        obj.sendupdate_command.sendupdate_list.joint_temperature = msg["joint_temperature"]
-        obj.sendupdate_command.sendupdate_list.joint_current = msg["joint_current"]
-        obj.sendupdate_command.sendupdate_list.error_flag = msg["error_flag"]
+        for i in range(msg['sendupdate_length']):
+            obj.sendupdate_command.sendupdate_list[i] = decode.joint(msg, obj.sendupdate_command.sendupdate_list[i], i)
+        # obj.sendupdate_command.sendupdate_list.joint_name = msg["joint_name"]
+        # obj.sendupdate_command.sendupdate_list.joint_position = msg["joint_position"]
+        # obj.sendupdate_command.sendupdate_list.joint_target = msg["joint_target"]
+        # obj.sendupdate_command.sendupdate_list.joint_torque = msg["joint_torque"]
+        # obj.sendupdate_command.sendupdate_list.joint_temperature = msg["joint_temperature"]
+        # obj.sendupdate_command.sendupdate_list.joint_current = msg["joint_current"]
+        # obj.sendupdate_command.sendupdate_list.error_flag = msg["error_flag"]
         obj.contrlr_command.contrlr_name = msg["contrlr_name"]
         obj.contrlr_command.list_of_parameters = msg["list_of_parameters"]
         obj.contrlr_command.length_of_list = msg["length_of_list"]
@@ -701,24 +776,27 @@ class Decode():
         return(obj)
 
     def joint(cls, msg, obj):
-        obj.joint_name = msg["joint_name"]
-        obj.joint_position = msg["joint_position"]
-        obj.joint_target = msg["joint_target"]
-        obj.joint_torque = msg["joint_torque"]
-        obj.joint_temperature = msg["joint_temperature"]
-        obj.joint_current = msg["joint_current"]
-        obj.error_flag = msg["error_flag"]
+        obj = decode.joint(msg, obj, "")
+        # obj.joint_name = msg["joint_name"]
+        # obj.joint_position = msg["joint_position"]
+        # obj.joint_target = msg["joint_target"]
+        # obj.joint_torque = msg["joint_torque"]
+        # obj.joint_temperature = msg["joint_temperature"]
+        # obj.joint_current = msg["joint_current"]
+        # obj.error_flag = msg["error_flag"]
         return(obj)
 
     def joints_data(cls, msg, obj):
         obj.joints_list_length = msg["joints_list_length"]
-        obj.joints_list.joint_name = msg["joint_name"]
-        obj.joints_list.joint_position = msg["joint_position"]
-        obj.joints_list.joint_target = msg["joint_target"]
-        obj.joints_list.joint_torque = msg["joint_torque"]
-        obj.joints_list.joint_temperature = msg["joint_temperature"]
-        obj.joints_list.joint_current = msg["joint_current"]
-        obj.joints_list.error_flag = msg["error_flag"]
+        for i in range(msg['joints_list_length']):
+            obj.joints_list[i] = decode.joint(obj.joints_list[i], i)
+        # obj.joints_list.joint_name = msg["joint_name"]
+        # obj.joints_list.joint_position = msg["joint_position"]
+        # obj.joints_list.joint_target = msg["joint_target"]
+        # obj.joints_list.joint_torque = msg["joint_torque"]
+        # obj.joints_list.joint_temperature = msg["joint_temperature"]
+        # obj.joints_list.joint_current = msg["joint_current"]
+        # obj.joints_list.error_flag = msg["error_flag"]
         return(obj)
 
     def reverse_kinematics(cls, msg, obj):
@@ -726,12 +804,14 @@ class Decode():
         return(obj)
 
     def send_update(cls, msg, obj):
-        obj.joints_list_length = msg["joints_list_length"]
-        obj.sendupdate_list.joint_name = msg["joint_name"]
-        obj.sendupdate_list.joint_position = msg["joint_position"]
-        obj.sendupdate_list.joint_target = msg["joint_target"]
-        obj.sendupdate_list.joint_torque = msg["joint_torque"]
-        obj.sendupdate_list.joint_temperature = msg["joint_temperature"]
-        obj.sendupdate_list.joint_current = msg["joint_current"]
-        obj.sendupdate_list.error_flag = msg["error_flag"]
+        obj.sendupdate_length = msg["sendupdate_length"]
+        for i in range(msg['sendupdate_length']):
+            obj.sendupdate_list[i] = decode.joint(msg, obj.sendupdate_list[i], i)
+        # obj.sendupdate_list.joint_name = msg["joint_name"]
+        # obj.sendupdate_list.joint_position = msg["joint_position"]
+        # obj.sendupdate_list.joint_target = msg["joint_target"]
+        # obj.sendupdate_list.joint_torque = msg["joint_torque"]
+        # obj.sendupdate_list.joint_temperature = msg["joint_temperature"]
+        # obj.sendupdate_list.joint_current = msg["joint_current"]
+        # obj.sendupdate_list.error_flag = msg["error_flag"]
         return(obj)
