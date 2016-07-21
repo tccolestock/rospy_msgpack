@@ -1,5 +1,10 @@
 
+import rospy
 from rospy_msgpack import interpret
+# from roslib import geometry_msgs #import *
+ # std_msgs.msg
+import roslib ; roslib.load_manifest('geometry_msgs')
+import geometry_msgs.msg
 
 encode = interpret.Encode()
 decode = interpret.Decode()
@@ -88,8 +93,10 @@ class Encode():
 
     def polygon(cls, obj):
         msg = {}
-        p = encode.point(obj.points, "")
-        msg.update(p)
+        msg['_length'] = len(obj.points)
+        for i in range(msg['_length']):
+            p = encode.point(obj.points[i], i)
+            msg.update(p)
         return(msg)
 
     def polygon_stamped(cls, obj):
@@ -320,7 +327,10 @@ class Decode():
         return(obj)
 
     def polygon(cls, msg, obj):
-        obj.points = decode.point(msg, obj.points, "")
+        pnt = geometry_msgs.msg.Point32()
+        for i in range(msg['_length']):
+            # obj.points.append = decode.point(msg, pnt, i)
+            obj.points.append(decode.point(msg, pnt, i))
         return(obj)
 
     def polygon_stamped(cls, msg, obj):
