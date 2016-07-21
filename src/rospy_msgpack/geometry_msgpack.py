@@ -1,9 +1,9 @@
 
-import rospy
+# import rospy
 from rospy_msgpack import interpret
 # from roslib import geometry_msgs #import *
  # std_msgs.msg
-import roslib ; roslib.load_manifest('geometry_msgs')
+# import roslib ; roslib.load_manifest('geometry_msgs')
 import geometry_msgs.msg
 
 encode = interpret.Encode()
@@ -327,9 +327,8 @@ class Decode():
         return(obj)
 
     def polygon(cls, msg, obj):
-        pnt = geometry_msgs.msg.Point32()
         for i in range(msg['_length']):
-            # obj.points.append = decode.point(msg, pnt, i)
+            pnt = geometry_msgs.msg.Point32()
             obj.points.append(decode.point(msg, pnt, i))
         return(obj)
 

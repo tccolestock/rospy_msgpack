@@ -13,12 +13,12 @@ pnt3 = Point32()
 pnt1.x = 1
 pnt1.y = 2
 pnt1.z = 3
-pnt2.x = 10
-pnt2.y = 20
-pnt2.z = 30
-pnt3.x = 100
-pnt3.y = 200
-pnt3.z = 300
+pnt2.x = 40
+pnt2.y = 50
+pnt2.z = 60
+pnt3.x = 700
+pnt3.y = 800
+pnt3.z = 900
 
 print("hello")
 print(poly)
