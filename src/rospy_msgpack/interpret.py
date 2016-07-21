@@ -32,47 +32,63 @@ class Encode():
         return(h)
 
 # ------------------ Geometry Messages -----------------------------
-    def angular(cls, obj, i):
-        msg = cls.xyz(obj, i, "ang")
+    def angular(cls, obj, uniq):
+        msg['%s_ang_x' %uniq] = obj.x
+        msg['%s_ang_y' %uniq] = obj.y
+        msg['%s_ang_z' %uniq] = obj.z
         return(msg)
 
-    def com(cls, obj, i):
-        msg = cls.xyz(obj, i, "com")
+    def com(cls, obj, uniq):
+        msg['%s_com_x' %uniq] = obj.x
+        msg['%s_com_y' %uniq] = obj.y
+        msg['%s_com_z' %uniq] = obj.z
         return(msg)
 
-    def covariance(cls, obj, i):
+    def covariance(cls, obj, uniq):
         msg = {}
-        msg['%scovariance' %i] = obj.covariance
+        msg['%s_covariance' %uniq] = obj.covariance
         return(msg)
 
     def force(cls, obj, i):
         msg = cls.xyz(obj, i, "force")
         return(msg)
 
-    def inertia(cls, obj, i):
+    def inertia(cls, obj, uniq):
         msg = {}
-        msg['%sixx' %i] = obj.ixx
-        msg['%sixy' %i] = obj.ixy
-        msg['%sixz' %i] = obj.ixz
-        msg['%siyy' %i] = obj.iyy
-        msg['%siyz' %i] = obj.iyz
-        msg['%sizz' %i] = obj.izz
+        msg['%s_ixx' %uniq] = obj.ixx
+        msg['%s_ixy' %uniq] = obj.ixy
+        msg['%s_ixz' %uniq] = obj.ixz
+        msg['%s_iyy' %uniq] = obj.iyy
+        msg['%s_iyz' %uniq] = obj.iyz
+        msg['%s_izz' %uniq] = obj.izz
         return(msg)
 
-    def linear(cls, obj, i):
-        msg = cls.xyz(obj, i, "lin")
+    def linear(cls, obj, uniq):
+        msg = {}
+        msg['%s_lin_x' %uniq] = obj.x
+        msg['%s_lin_y' %uniq] = obj.y
+        msg['%s_lin_z' %uniq] = obj.z
         return(msg)
 
-    def orientation(cls, obj, i):
-        msg = cls.xyzw(obj, i, "orient")
+    def orientation(cls, obj, uniq):
+        msg = {}
+        msg['%s_orient_x' %uniq] = obj.x
+        msg['%s_orient_y' %uniq] = obj.y
+        msg['%s_orient_z' %uniq] = obj.z
         return(msg)
 
-    def point(cls, obj, i):
-        msg = cls.xyz(obj, i, "pnt")
+    def point(cls, obj, uniq):
+        msg = {}
+        msg['%s_pnt_x' %uniq] = obj.x
+        msg['%s_pnt_y' %uniq] = obj.y
+        msg['%s_pnt_z' %uniq] = obj.z
         return(msg)
 
-    def position(cls, obj, i):
-        msg = cls.xyz(obj, i, "pos")
+    def position(cls, obj, uniq):
+        msg = {}
+        msg['%s_pos_x' %uniq] = obj.x
+        msg['%s_pos_y' %uniq] = obj.y
+        msg['%s_pos_z' %uniq] = obj.z
         return(msg)
 
     def quaternion(cls, obj, i):
@@ -187,45 +203,57 @@ class Decode():
         return(obj)
 
 # ------------------ Geometry Messages -----------------------------
-    def angular(cls, msg, obj, i):
-        obj = cls.xyz(msg, obj, i, "ang")
+    def angular(cls, msg, obj, uniq):
+        obj.x = msg['%s_ang_x' %uniq]
+        obj.y = msg['%s_ang_y' %uniq]
+        obj.z = msg['%s_ang_z' %uniq]
         return(obj)
 
-    def com(cls, msg, obj, i):
-        obj = cls.xyz(msg, obj, i, "com")
+    def com(cls, msg, obj, uniq):
+        obj.x = msg['%s_com_x' %uniq]
+        obj.y = msg['%s_com_y' %uniq]
+        obj.z = msg['%s_com_z' %uniq]
         return(obj)
 
-    def covariance(cls, msg, obj, i):
-        obj.covariance = msg['%scovariance' %i]
+    def covariance(cls, msg, obj, uniq):
+        obj.covariance = msg['%s_covariance' %uniq]
         return(obj)
 
     def force(cls, msg, obj, i):
         obj = cls.xyz(msg, obj, i, "force")
         return(obj)
 
-    def inertia(cls, msg, obj, i):
-        obj.ixx = msg['%sixx' %i]
-        obj.ixy = msg['%sixy' %i]
-        obj.ixz = msg['%sixz' %i]
-        obj.iyy = msg['%siyy' %i]
-        obj.iyz = msg['%siyz' %i]
-        obj.izz = msg['%sizz' %i]
+    def inertia(cls, msg, obj, uniq):
+        obj.ixx = msg['%s_ixx' %uniq]
+        obj.ixy = msg['%s_ixy' %uniq]
+        obj.ixz = msg['%s_ixz' %uniq]
+        obj.iyy = msg['%s_iyy' %uniq]
+        obj.iyz = msg['%s_iyz' %uniq]
+        obj.izz = msg['%s_izz' %uniq]
         return(obj)
 
-    def linear(cls, msg, obj, i):
-        obj = cls.xyz(msg, obj, i, "lin")
+    def linear(cls, msg, obj, uniq):
+        obj.x = msg['%s_lin_x' %uniq]
+        obj.y = msg['%s_lin_y' %uniq]
+        obj.z = msg['%s_lin_z' %uniq]
         return(obj)
 
-    def orientation(cls, msg, obj, i):
-        obj = cls.xyzw(msg, obj, i, "orient")
+    def orientation(cls, msg, obj, uniq):
+        obj.x = msg['%s_orient_x' %uniq]
+        obj.y = msg['%s_orient_y' %uniq]
+        obj.z = msg['%s_orient_z' %uniq]
         return(obj)
 
-    def point(cls, msg, obj, i):
-        obj = cls.xyz(msg, obj, i, "pnt")
+    def point(cls, msg, obj, uniq):
+        obj.x = msg['%s_pnt_x' %uniq]
+        obj.y = msg['%s_pnt_y' %uniq]
+        obj.z = msg['%s_pnt_z' %uniq]
         return(obj)
 
-    def position(cls, msg, obj, i):
-        obj = cls.xyz(msg, obj, i, "pos")
+    def position(cls, msg, obj, uniq):
+        obj.x = msg['%s_pos_x' %uniq]
+        obj.y = msg['%s_pos_y' %uniq]
+        obj.z = msg['%s_pos_z' %uniq]
         return(obj)
 
     def quaternion(cls, msg, obj, i):

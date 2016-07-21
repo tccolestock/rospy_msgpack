@@ -30,6 +30,8 @@ print(len(poly.points)) #could work
 print(poly.points)
 # print(poly.__format__())
 print(poly.points[1])
+fo = poly.points[1]
+print(fo.x)
 
 for i in poly.points:
     print("testing...")

@@ -93,18 +93,24 @@ class Encode():
 
     def polygon(cls, obj):
         msg = {}
+        obj_points = obj.points
+        e_point = encode.point
         msg['_length'] = len(obj.points)
         for i in range(msg['_length']):
-            p = encode.point(obj.points[i], i)
+            p = e_point(obj_points[i], i)
             msg.update(p)
         return(msg)
 
     def polygon_stamped(cls, obj):
         msg = {}
+        msg['_length'] = len(obj.polygon.points)
+        obj_poly_points = obj.polygon.points
+        e_point = encode.point
         h = encode.header(obj.header, "")
-        p = encode.point(obj.polygon.points, "")
+        for i in range(msg['_length']):
+            p = e_point(obj_poly_points[i], i)
+            msg.update(p)
         msg.update(h)
-        msg.update(p)
         return(msg)
 
     def pose(cls, obj):
@@ -124,12 +130,17 @@ class Encode():
 
     def pose_array(cls, obj):
         msg = {}
+        obj_poses = obj.poses
+        e_pos = encode.position
+        e_orient = encode.orientation
+        msg['_length'] = len(obj.poses)
         h = encode.header(obj.header, "")
-        p = encode.position(obj.poses.position, "")
-        o = encode.orientation(obj.poses.orientation, "")
+        for i in range(msg['_length']):
+            p = e_pos(obj_poses[i].position, i)
+            o = e_orient(obj_poses[i].orientation, i)
+            msg.update(p)
+            msg.update(o)
         msg.update(h)
-        msg.update(p)
-        msg.update(o)
         return(msg)
 
     def pose_stamped(cls, obj):
@@ -327,14 +338,22 @@ class Decode():
         return(obj)
 
     def polygon(cls, msg, obj):
+        obj_points_append = obj.points.append
+        decode_point = decode.point
+        point32 = geometry_msgs.msg.Point32
         for i in range(msg['_length']):
-            pnt = geometry_msgs.msg.Point32()
-            obj.points.append(decode.point(msg, pnt, i))
+            pnt = point32()
+            obj_points_append(decode_point(msg, pnt, i))
         return(obj)
 
     def polygon_stamped(cls, msg, obj):
+        obj_poly_points_app = obj.polygon.points.append
+        d_point = decode.point
+        point32 = geometry_msgs.msg.Point32
         obj.header = decode.header(msg, obj.header, "")
-        obj.polygon.points = interpret.Decode.point(msg, obj.polygon.points, "")
+        for i in range(msg['_length']):
+            pnt = point32()
+            obj_poly_points_app(d_point(msg, pnt, i))
         return(obj)
 
     def pose(cls, msg, obj):
@@ -349,9 +368,20 @@ class Decode():
         return(obj)
 
     def pose_array(cls, msg, obj):
+        obj_poses_app = obj.poses.append
+        pose = geometry_msgs.msg.Pose
+        pos = geometry_msgs.msg.Point
+        orient = geometry_msgs.msg.Quaternion
+        d_pos = decode.position
+        d_orient = decode.orientation
         obj.header = decode.header(msg, obj.header, "")
-        obj.poses.position = decode.position(msg, obj.poses.position, "")
-        obj.poses.orientation = decode.orientation(msg, obj.poses.orientation, "")
+        position = pos()
+        orientation = orient()
+        for i in range(['_length']):
+            pose1 = pose()
+            pose1.position = d_pos(msg, position, i)
+            pose1.orientation = d_orient(msg, orientation, i)
+            obj_poses_app(pose1)
         return(obj)
 
     def pose_stamped(cls, msg, obj):
