@@ -23,22 +23,24 @@ class Encode():
         return(msg)
 
 # ------------------ Header Messages -----------------------------
-    def header(cls, obj, i):
+    def header(cls, obj, uniq):
         h = {}
-        h['%sseq' %i] = obj.seq
-        h['%ssecs' %i] = obj.stamp.secs
-        h['%snsecs' %i] = obj.stamp.nsecs
-        h['%sframe_id' %i] = obj.frame_id
+        h['%sseq' %uniq] = obj.seq
+        h['%ssecs' %uniq] = obj.stamp.secs
+        h['%snsecs' %uniq] = obj.stamp.nsecs
+        h['%sframe_id' %uniq] = obj.frame_id
         return(h)
 
 # ------------------ Geometry Messages -----------------------------
     def angular(cls, obj, uniq):
+        msg = {}
         msg['%s_ang_x' %uniq] = obj.x
         msg['%s_ang_y' %uniq] = obj.y
         msg['%s_ang_z' %uniq] = obj.z
         return(msg)
 
     def com(cls, obj, uniq):
+        msg = {}
         msg['%s_com_x' %uniq] = obj.x
         msg['%s_com_y' %uniq] = obj.y
         msg['%s_com_z' %uniq] = obj.z
@@ -49,8 +51,12 @@ class Encode():
         msg['%s_covariance' %uniq] = obj.covariance
         return(msg)
 
-    def force(cls, obj, i):
-        msg = cls.xyz(obj, i, "force")
+    def force(cls, obj, uniq):
+        # msg = cls.xyz(obj, i, "force")
+        msg = {}
+        msg['%s_force_x' %uniq] = obj.x
+        msg['%s_force_y' %uniq] = obj.y
+        msg['%s_force_z' %uniq] = obj.z
         return(msg)
 
     def inertia(cls, obj, uniq):
@@ -92,87 +98,104 @@ class Encode():
         msg['%s_pos_z' %uniq] = obj.z
         return(msg)
 
-    def quaternion(cls, obj, i):
-        msg = xyzw(obj, i, "quat")
+    def quaternion(cls, obj, uniq):
+        msg = {}
+        msg['%s_quat_x' %uniq] = obj.x
+        msg['%s_quat_y' %uniq] = obj.y
+        msg['%s_quat_z' %uniq] = obj.z
+        msg['%s_quat_w' %uniq] = obj.w
         return(msg)
 
-    def rotation(cls, obj, i):
-        msg = cls.xyzw(obj, i, "rot")
+    def rotation(cls, obj, uniq):
+        msg = {}
+        msg['%s_rot_x' %uniq] = obj.x
+        msg['%s_rot_y' %uniq] = obj.y
+        msg['%s_rot_z' %uniq] = obj.z
+        msg['%s_rot_w' %uniq] = obj.w
         return(msg)
 
-    def torque(cls, obj, i):
-        msg = cls.xyz(obj, i, "torq")
+    def torque(cls, obj, uniq):
+        msg = {}
+        msg['%s_torq_x' %uniq] = obj.x
+        msg['%s_torq_y' %uniq] = obj.y
+        msg['%s_torq_z' %uniq] = obj.z
         return(msg)
 
-    def translation(cls, obj, i):
-        msg = cls.xyz(obj, i, "trans")
+    def translation(cls, obj, uniq):
+        msg = {}
+        msg['%s_trans_x' %uniq] = obj.x
+        msg['%s_trans_y' %uniq] = obj.y
+        msg['%s_trans_z' %uniq] = obj.z
         return(msg)
 
-    def vector(cls, obj, i):
-        msg = cls.xyz(obj, i, "vect")
+    def vector(cls, obj, uniq):
+        msg = {}
+        msg['%s_vect_x' %uniq] = obj.x
+        msg['%s_vect_y' %uniq] = obj.y
+        msg['%s_vect_z' %uniq] = obj.z
         return(msg)
 
 # ------------------ Sensor Messages -----------------------------
-    def roi(cls, obj, i): # region_of_interest
+    def roi(cls, obj, uniq): # region_of_interest
         msg = {}
-        msg["%sx_offset" %i] = obj.x_offset
-        msg["%sy_offset" %i] = obj.y_offset
-        msg["%sheight" %i] = obj.height
-        msg["%swidth" %i] = obj.width
-        msg["%sdo_rectify" %i] = obj.do_rectify
+        msg["%sx_offset" %uniq] = obj.x_offset
+        msg["%sy_offset" %uniq] = obj.y_offset
+        msg["%sheight" %uniq] = obj.height
+        msg["%swidth" %uniq] = obj.width
+        msg["%sdo_rectify" %uniq] = obj.do_rectify
         return(msg)
 
-    def laser(cls, obj, i):
+    def laser(cls, obj, uniq):
         msg = {}
-        msg["%sangle_min" %i] = obj.angle_min
-        msg["%sangle_max" %i] = obj.angle_max
-        msg["%sangle_increment" %i] = obj.angle_increment
-        msg["%stime_increment" %i] = obj.time_increment
-        msg["%sscan_time" %i] = obj.scan_time
-        msg["%srange_min" %i] = obj.range_min
-        msg["%srange_max" %i] = obj.range_max
+        msg["%sangle_min" %uniq] = obj.angle_min
+        msg["%sangle_max" %uniq] = obj.angle_max
+        msg["%sangle_increment" %uniq] = obj.angle_increment
+        msg["%stime_increment" %uniq] = obj.time_increment
+        msg["%sscan_time" %uniq] = obj.scan_time
+        msg["%srange_min" %uniq] = obj.range_min
+        msg["%srange_max" %uniq] = obj.range_max
         return(msg)
 
 # ------------------ SR_Robot Messages -----------------------------
-    def biotacs(cls, obj, i):
+    def biotacs(cls, obj, uniq):
         msg = {}
-        msg["%s_pac0" %i] = obj.pac0
-        msg["%s_pac1" %i] = obj.pac1
-        msg["%s_pdc" %i] = obj.pdc
-        msg["%s_tac" %i] = obj.tac
-        msg["%s_tdc" %i] = obj.tdc
-        msg["%s_electrodes" %i] = obj.electrodes
+        msg["%s_pac0" %uniq] = obj.pac0
+        msg["%s_pac1" %uniq] = obj.pac1
+        msg["%s_pdc" %uniq] = obj.pdc
+        msg["%s_tac" %uniq] = obj.tac
+        msg["%s_tdc" %uniq] = obj.tdc
+        msg["%s_electrodes" %uniq] = obj.electrodes
         return(msg)
 
-    def grasp_points(cls, obj, i):
+    def grasp_points(cls, obj, uniq):
         msg = {}
-        msg["%s_positions" %i] = obj.positions
-        msg["%s_velocities" %i] = obj.velocities
-        msg["%s_accelerations" %i] = obj.accelerations
-        msg["%s_effort" %i] = obj.effort
-        msg["%s_time_from_start" %i] = obj.time_from_start
+        msg["%s_positions" %uniq] = obj.positions
+        msg["%s_velocities" %uniq] = obj.velocities
+        msg["%s_accelerations" %uniq] = obj.accelerations
+        msg["%s_effort" %uniq] = obj.effort
+        msg["%s_time_from_start" %uniq] = obj.time_from_start
         return(msg)
 
-    def tip(cls, obj, i):
+    def tip(cls, obj, uniq):
         msg = {}
-        msg["%s_tip_name" %i] = obj.tip_name
-        msg["%s_tip_pos_x" %i] = obj.tip_pos_x
-        msg["%s_tip_pos_y" %i] = obj.tip_pos_y
-        msg["%s_tip_pos_z" %i] = obj.tip_pos_z
-        msg["%s_tip_orientation_rho" %i] = obj.tip_orientation_rho
-        msg["%s_tip_orientation_theta" %i] = obj.tip_orientation_theta
-        msg["%s_tip_orientation_sigma" %i] = obj.tip_orientation_sigma
+        msg["%s_tip_name" %uniq] = obj.tip_name
+        msg["%s_tip_pos_x" %uniq] = obj.tip_pos_x
+        msg["%s_tip_pos_y" %uniq] = obj.tip_pos_y
+        msg["%s_tip_pos_z" %uniq] = obj.tip_pos_z
+        msg["%s_tip_orientation_rho" %uniq] = obj.tip_orientation_rho
+        msg["%s_tip_orientation_theta" %uniq] = obj.tip_orientation_theta
+        msg["%s_tip_orientation_sigma" %uniq] = obj.tip_orientation_sigma
         return(msg)
 
-    def joint(cls, obj, i):
+    def joint(cls, obj, uniq):
         msg = {}
-        msg["%s_joint_name" %i] = obj.joint_name
-        msg["%s_joint_position" %i] = obj.joint_position
-        msg["%s_joint_target" %i] = obj.joint_target
-        msg["%s_joint_torque" %i] = obj.joint_torque
-        msg["%s_joint_temperature" %i] = obj.joint_temperature
-        msg["%s_joint_current" %i] = obj.joint_current
-        msg["%s_error_flag" %i] = obj.error_flag
+        msg["%s_joint_name" %uniq] = obj.joint_name
+        msg["%s_joint_position" %uniq] = obj.joint_position
+        msg["%s_joint_target" %uniq] = obj.joint_target
+        msg["%s_joint_torque" %uniq] = obj.joint_torque
+        msg["%s_joint_temperature" %uniq] = obj.joint_temperature
+        msg["%s_joint_current" %uniq] = obj.joint_current
+        msg["%s_error_flag" %uniq] = obj.error_flag
         return(msg)
 
 # =========================== Decode Functions ===========================================
@@ -196,11 +219,11 @@ class Decode():
         return(obj)
 
 # ------------------ Header Messages -----------------------------
-    def header(cls, msg, obj, i):
-        obj.seq = msg['%sseq' %i]
-        obj.stamp.secs = msg['%ssecs' %i]
-        obj.stamp.nsecs = msg['%snsecs' %i]
-        obj.frame_id = msg['%sframe_id' %i]
+    def header(cls, msg, obj, uniq):
+        obj.seq = msg['%sseq' %uniq]
+        obj.stamp.secs = msg['%ssecs' %uniq]
+        obj.stamp.nsecs = msg['%snsecs' %uniq]
+        obj.frame_id = msg['%sframe_id' %uniq]
         return(obj)
 
 # ------------------ Geometry Messages -----------------------------
@@ -220,8 +243,10 @@ class Decode():
         obj.covariance = msg['%s_covariance' %uniq]
         return(obj)
 
-    def force(cls, msg, obj, i):
-        obj = cls.xyz(msg, obj, i, "force")
+    def force(cls, msg, obj, uniq):
+        obj.x = msg['%s_force_x' %uniq]
+        obj.y = msg['%s_force_y' %uniq]
+        obj.z = msg['%s_force_z' %uniq]
         return(obj)
 
     def inertia(cls, msg, obj, uniq):
@@ -258,80 +283,92 @@ class Decode():
         obj.z = msg['%s_pos_z' %uniq]
         return(obj)
 
-    def quaternion(cls, msg, obj, i):
-        obj = cls.xyzw(msg, obj, i, "quat")
+    def quaternion(cls, msg, obj, uniq):
+        obj.x = msg['%s_quat_x' %uniq]
+        obj.y = msg['%s_quat_y' %uniq]
+        obj.z = msg['%s_quat_z' %uniq]
+        obj.w = msg['%s_quat_w' %uniq]
         return(obj)
 
-    def rotation(cls, msg, obj, i):
-        obj = cls.xyzw(msg, obj, i, "rot")
+    def rotation(cls, msg, obj, uniq):
+        obj.x = msg['%s_rot_x' %uniq]
+        obj.y = msg['%s_rot_y' %uniq]
+        obj.z = msg['%s_rot_z' %uniq]
+        obj.w = msg['%s_rot_w' %uniq]
         return(obj)
 
-    def torque(cls, msg, obj, i):
-        obj = cls.xyz(msg, obj, i, "torq")
+    def torque(cls, msg, obj, uniq):
+        obj.x = msg['%s_torq_x' %uniq]
+        obj.y = msg['%s_torq_y' %uniq]
+        obj.z = msg['%s_torq_z' %uniq]
         return(obj)
 
-    def translation(cls, msg, obj, i):
-        obj = cls.xyz(msg, obj, i, "trans")
+    def translation(cls, msg, obj, uniq):
+        obj.x = msg['%s_trans_x' %uniq]
+        obj.y = msg['%s_trans_y' %uniq]
+        obj.z = msg['%s_trans_z' %uniq]
         return(obj)
 
-    def vector(cls, msg, obj, i):
-        obj = cls.xyz(msg, obj, i, "vect")
+    def vector(cls, msg, obj, uniq):
+        obj.x = msg['%s_vect_x' %uniq]
+        obj.y = msg['%s_vect_y' %uniq]
+        obj.z = msg['%s_vect_z' %uniq]
         return(obj)
 
 # ------------------ Sensor Messages -----------------------------
 
-    def roi(cls, msg, obj, i): # region_of_interest
-        obj.x_offset = msg["%sx_offset" %i]
-        obj.y_offset = msg["%sy_offset" %i]
-        obj.height = msg["%sheight" %i]
-        obj.width = msg["%swidth" %i]
-        obj.do_rectify = msg["%sdo_rectify" %i]
+    def roi(cls, msg, obj, uniq): # region_of_interest
+        obj.x_offset = msg["%sx_offset" %uniq]
+        obj.y_offset = msg["%sy_offset" %uniq]
+        obj.height = msg["%sheight" %uniq]
+        obj.width = msg["%swidth" %uniq]
+        obj.do_rectify = msg["%sdo_rectify" %uniq]
         return(obj)
 
-    def laser(cls, msg, obj, i):
-        obj.angle_min = msg["%sangle_min" %i]
-        obj.angle_max = msg["%sangle_max" %i]
-        obj.angle_increment = msg["%sangle_increment" %i]
-        obj.time_increment = msg["%stime_increment" %i]
-        obj.scan_time = msg["%sscan_time" %i]
-        obj.range_min = msg["%srange_min" %i]
-        obj.range_max = msg["%srange_max" %i]
+    def laser(cls, msg, obj, uniq):
+        obj.angle_min = msg["%sangle_min" %uniq]
+        obj.angle_max = msg["%sangle_max" %uniq]
+        obj.angle_increment = msg["%sangle_increment" %uniq]
+        obj.time_increment = msg["%stime_increment" %uniq]
+        obj.scan_time = msg["%sscan_time" %uniq]
+        obj.range_min = msg["%srange_min" %uniq]
+        obj.range_max = msg["%srange_max" %uniq]
         return(obj)
 
 # ------------------ SR_Robot Messages -----------------------------
-    def biotacs(cls, msg, obj, i):
-        obj.pac0 = msg["%s_pac0" %i]
-        obj.pac1 = msg["%s_pac1" %i]
-        obj.pdc = msg["%s_pdc" %i]
-        obj.tac = msg["%s_tac" %i]
-        obj.tdc = msg["%s_tdc" %i]
-        obj.electrodes = msg["%s_electrodes" %i]
+    def biotacs(cls, msg, obj, uniq):
+        obj.pac0 = msg["%s_pac0" %uniq]
+        obj.pac1 = msg["%s_pac1" %uniq]
+        obj.pdc = msg["%s_pdc" %uniq]
+        obj.tac = msg["%s_tac" %uniq]
+        obj.tdc = msg["%s_tdc" %uniq]
+        obj.electrodes = msg["%s_electrodes" %uniq]
         return(obj)
 
-    def grasp_points(cls, msg, obj, i):
-        obj.positions = msg["%s_positions" %i]
-        obj.velocities = msg["%s_velocities" %i]
-        obj.accelerations = msg["%s_accelerations" %i]
-        obj.effort = msg["%s_effort" %i]
-        obj.time_from_start = msg["%s_time_from_start" %i]
+    def grasp_points(cls, msg, obj, uniq):
+        obj.positions = msg["%s_positions" %uniq]
+        obj.velocities = msg["%s_velocities" %uniq]
+        obj.accelerations = msg["%s_accelerations" %uniq]
+        obj.effort = msg["%s_effort" %uniq]
+        obj.time_from_start = msg["%s_time_from_start" %uniq]
         return(obj)
 
-    def tip(cls, msg, obj, i):
-        obj.tip_name = msg["%s_tip_name" %i]
-        obj.tip_pos_x = msg["%s_tip_pos_x" %i]
-        obj.tip_pos_y = msg["%s_tip_pos_y" %i]
-        obj.tip_pos_z = msg["%s_tip_pos_z" %i]
-        obj.tip_orientation_rho = msg["%s_tip_orientation_rho" %i]
-        obj.tip_orientation_theta = msg["%s_tip_orientation_theta" %i]
-        obj.tip_orientation_sigma = msg["%s_tip_orientation_sigma" %i]
+    def tip(cls, msg, obj, uniq):
+        obj.tip_name = msg["%s_tip_name" %uniq]
+        obj.tip_pos_x = msg["%s_tip_pos_x" %uniq]
+        obj.tip_pos_y = msg["%s_tip_pos_y" %uniq]
+        obj.tip_pos_z = msg["%s_tip_pos_z" %uniq]
+        obj.tip_orientation_rho = msg["%s_tip_orientation_rho" %uniq]
+        obj.tip_orientation_theta = msg["%s_tip_orientation_theta" %uniq]
+        obj.tip_orientation_sigma = msg["%s_tip_orientation_sigma" %uniq]
         return(obj)
 
-    def joint(cls, msg, obj, i):
-        obj.joint_name = msg["%s_joint_name" %i]
-        obj.joint_position = msg["%s_joint_position" %i]
-        obj.joint_target = msg["%s_joint_target" %i]
-        obj.joint_torque = msg["%s_joint_torque" %i]
-        obj.joint_temperature = msg["%s_joint_temperature" %i]
-        obj.joint_current = msg["%s_joint_current" %i]
-        obj.error_flag = msg["%s_error_flag" %i]
+    def joint(cls, msg, obj, uniq):
+        obj.joint_name = msg["%s_joint_name" %uniq]
+        obj.joint_position = msg["%s_joint_position" %uniq]
+        obj.joint_target = msg["%s_joint_target" %uniq]
+        obj.joint_torque = msg["%s_joint_torque" %uniq]
+        obj.joint_temperature = msg["%s_joint_temperature" %uniq]
+        obj.joint_current = msg["%s_joint_current" %uniq]
+        obj.error_flag = msg["%s_error_flag" %uniq]
         return(obj)
