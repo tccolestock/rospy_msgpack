@@ -31,6 +31,12 @@ class Encode():
         h['%sframe_id' %uniq] = obj.frame_id
         return(h)
 
+    def time_stamp(cls, obj, uniq):
+        msg = {}
+        msg['%s_secs' %uniq] = obj.secs
+        msg['%s_nsecs' %uniq] = obj.nsecs
+        return(h)
+
 # ------------------ Geometry Messages -----------------------------
     def angular(cls, obj, uniq):
         msg = {}
@@ -226,6 +232,10 @@ class Decode():
         obj.frame_id = msg['%sframe_id' %uniq]
         return(obj)
 
+    def time_stamp(cls, msg, obj, uniq):
+        obj.secs = msg['%s_secs' %uniq]
+        obj.nsecs = msg['%s_nsecs' %uniq]
+        return(h)
 # ------------------ Geometry Messages -----------------------------
     def angular(cls, msg, obj, uniq):
         obj.x = msg['%s_ang_x' %uniq]
