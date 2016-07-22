@@ -375,9 +375,9 @@ class Decode():
         d_pos = decode.position
         d_orient = decode.orientation
         obj.header = decode.header(msg, obj.header, "")
-        position = pos()
-        orientation = orient()
-        for i in range(['_length']):
+        for i in range(msg['_length']):
+            position = pos()
+            orientation = orient()
             pose1 = pose()
             pose1.position = d_pos(msg, position, i)
             pose1.orientation = d_orient(msg, orientation, i)

@@ -75,6 +75,7 @@ class Encode():
         msg['%s_orient_x' %uniq] = obj.x
         msg['%s_orient_y' %uniq] = obj.y
         msg['%s_orient_z' %uniq] = obj.z
+        msg['%s_orient_w' %uniq] = obj.w
         return(msg)
 
     def point(cls, obj, uniq):
@@ -242,6 +243,7 @@ class Decode():
         obj.x = msg['%s_orient_x' %uniq]
         obj.y = msg['%s_orient_y' %uniq]
         obj.z = msg['%s_orient_z' %uniq]
+        obj.w = msg['%s_orient_w' %uniq]
         return(obj)
 
     def point(cls, msg, obj, uniq):
