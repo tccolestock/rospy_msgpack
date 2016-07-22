@@ -29,7 +29,6 @@ class Decode():
         pass
 
     def color(self, msg, obj):
-        # color = Color()
         obj.r = msg['r']
         obj.g = msg['g']
         obj.b = msg['b']
