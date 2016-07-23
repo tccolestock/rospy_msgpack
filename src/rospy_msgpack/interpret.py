@@ -212,6 +212,19 @@ class Encode():
         msg['%s_mad_stride' %uniq] = obj.stride
         return(msg)
 
+# ------------------ Controller_Manager Messages -----------------------------
+    def controller_statistics(cls, obj, uniq):
+        msg = {}
+        msg['name'] = obj.name
+        msg['type'] = obj.type
+        msg['timestamp'] = obj.timestamp
+        msg['running'] = obj.running
+        msg['max_time'] = obj.max_time
+        msg['mean_time'] = obj.mean_time
+        msg['variance_time'] = obj.variance_time
+        msg['num_control_loop_overruns'] = obj.num_control_loop_overruns
+        msg['time_last_control_loop_overrun'] = obj.time_last_control_loop_overrun
+        return(msg)
 
 # =========================== Decode Functions ===========================================
 
@@ -397,4 +410,17 @@ class Decode():
         obj.label = msg['%s_mad_label' %uniq]
         obj.size = msg['%s_mad_size' %uniq]
         obj.stride = msg['%s_mad_stride' %uniq]
+        return(obj)
+
+# ------------------ Controller_Manager Messages -----------------------------
+    def controller_statistics(cls, msg, obj, uniq):
+        obj.name = msg['name']
+        obj.type = msg['type']
+        obj.timestamp = msg['timestamp']
+        obj.running = msg['running']
+        obj.max_time = msg['max_time']
+        obj.mean_time = msg['mean_time']
+        obj.variance_time = msg['variance_time']
+        obj.num_control_loop_overruns = msg['num_control_loop_overruns']
+        obj.time_last_control_loop_overrun = msg['time_last_control_loop_overrun']
         return(obj)
