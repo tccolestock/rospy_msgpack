@@ -204,6 +204,15 @@ class Encode():
         msg["%s_error_flag" %uniq] = obj.error_flag
         return(msg)
 
+# ------------------ Std Messages -----------------------------
+    def multi_array_dimension(cls, obj, uniq):
+        msg = {}
+        msg['%s_mad_label' %uniq] = obj.label
+        msg['%s_mad_size' %uniq] = obj.size
+        msg['%s_mad_stride' %uniq] = obj.stride
+        return(msg)
+
+
 # =========================== Decode Functions ===========================================
 
 class Decode():
@@ -381,4 +390,11 @@ class Decode():
         obj.joint_temperature = msg["%s_joint_temperature" %uniq]
         obj.joint_current = msg["%s_joint_current" %uniq]
         obj.error_flag = msg["%s_error_flag" %uniq]
+        return(obj)
+
+# ------------------ Std Messages -----------------------------
+    def multi_array_dimension(cls, msg, obj, uniq):
+        obj.label = msg['%s_mad_label' %uniq]
+        obj.size = msg['%s_mad_size' %uniq]
+        obj.stride = msg['%s_mad_stride' %uniq]
         return(obj)
