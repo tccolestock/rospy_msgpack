@@ -1,5 +1,9 @@
 
 from rospy_msgpack import interpret
+from moveit_msgs.msg import Grasp
+from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
+from std_msgs.msg import Int16
+from sr_robot_msgs.msg import Tactile, cartesian_position, joint
 
 encode = interpret.Encode()
 decode = interpret.Decode()
@@ -31,8 +35,10 @@ class Encode():
             msg.update(bio)
         return(msg)
 
-    # def control_type(cls, obj):
-    #     msg = {}
+    def control_type(cls, obj):
+        msg = {}
+        msg['control_type'] = obj.control_type
+        return(msg)
 
     def ethercat_debug(cls, obj):
         msg = {}
@@ -58,52 +64,63 @@ class Encode():
 
     def grasp_array(cls, obj):
         msg = {}
-        # grasps
-        msg["id"] = obj.grasps.id
-        msg["grasp_quality"] = obj.grasps.grasp_quality
-        msg["max_contact_force"] = obj.grasps.max_contact_force
-        msg["allowed_touch_objects"] = obj.grasps.allowed_touch_objects
-        # pre_grasp_posture
-        preh = encode.header(obj.grasps.pre_grasp_posture.header, "pre")
-        msg["prejoint_names"] = obj.grasps.pre_grasp_posture.joint_names
-        pre_grasp = encode.grasp_points(obj.grasps.pre_grasp_posture.points, "pre")
-        # grasp_posture
-        postureh = encode.header(obj.grasps.grasp_posture.header, "posture")
-        msg["joint_names"] = obj.grasps.grasp_posture.joint_names
-        posture_grasp = encode.grasp_points(obj.grasps.grasp_posture.points, "posture")
-        # grasp_pose
-        poseh = encode.header(obj.grasps.grasp_pose.header, "pose")
-        posep = encode.position(obj.grasps.grasp_pose.pose.position, "pose")
-        poseo = encode.orientation(obj.grasps.grasp_pose.pose.orientation, "pose")
-        # pre_grasp_approach
-        apph = encode.header(obj.grasps.pre_grasp_approach.direction.header, "app")
-        appv = encode.vector(obj.grasps.pre_grasp_approach.direction.vector, "app")
-        msg["appdesired_distance"] = obj.grasps.pre_grasp_approach.desired_distance
-        msg["appmin_distance"] = obj.grasps.pre_grasp_approach.min_distance
-        # post_grasp_retreat
-        reth = encode.header(obj.grasps.post_grasp_retreat.direction.header, "ret")
-        retv = encode.vector(obj.grasps.post_grasp_retreat.direction.vector, "ret")
-        msg["retdesired_distance"] = obj.grasps.post_grasp_retreat.desired_distance
-        msg["retmin_distance"] = obj.grasps.post_grasp_retreat.min_distance
-        # post_place_retreat
-        plh = encode.header(obj.grasps.post_place_retreat.direction.header, "place")
-        plv = encode.vector(obj.grasps.post_place_retreat.direction.vector, "place")
-        msg["pldesired_distance"] = obj.grasps.post_place_retreat.desired_distance
-        msg["plmin_distance"] = obj.grasps.post_place_retreat.min_distance
-        # update
-        msg.update(preh)
-        msg.update(pre_grasp)
-        msg.update(postureh)
-        msg.update(posture_grasp)
-        msg.update(poseh)
-        msg.update(posep)
-        msg.update(poseo)
-        msg.update(apph)
-        msg.update(appv)
-        msg.update(reth)
-        msg.update(retv)
-        msg.update(plh)
-        msg.update(plv)
+        msg(['_length_grasp']) = len(obj.grasps)
+        for i in range(msg['_length_grasp']):
+            # direct descendants of grasps:
+            msg["%s_id" %i] = obj.grasps[i].id
+            msg["%s_grasp_quality" %i] = obj.grasps[i].grasp_quality
+            msg["%s_max_contact_force" %i] = obj.grasps[i].max_contact_force
+            msg["%s_allowed_touch_objects" %i] = obj.grasps[i].allowed_touch_objects
+
+            # descendants of pre_grasp_posture:
+            preh = encode.header(obj.grasps[i].pre_grasp_posture.header, "%s_pre" %i)
+            msg.update(preh)
+            msg["%s_prejoint_names" %i] = obj.grasps[i].pre_grasp_posture.joint_names
+            msg['%s_length_points1' %i] = len(obj.grasps[i].pre_grasp_posture.points)
+            for j in range(msg['%s_length_points1' %i]):
+                pre_grasp = encode.grasp_points(obj.grasps[i].pre_grasp_posture.points[j], "%s_%s_pre" %(i,j))
+                msg.update(pre_grasp)
+
+            # descendants of grasp_posture:
+            postureh = encode.header(obj.grasps[i].grasp_posture.header, "%s_posture" %i)
+            msg.update(postureh)
+            msg["%s_joint_names" %i] = obj.grasps[i].grasp_posture.joint_names
+            msg['%s_length_points2' %i] = len(obj.grasps[i].grasp_posture.points)
+            for j in range(msg['%s_length_points2' %i]):
+                posture_grasp = encode.grasp_points(obj.grasps[i].grasp_posture.points[j], "%s_%s_posture" %(i,j))
+                msg.update(posture_grasp)
+
+            # descendants of grasp_pose
+            poseh = encode.header(obj.grasps[i].grasp_pose.header, "%s_pose" %i)
+            posep = encode.position(obj.grasps[i].grasp_pose.pose.position, "%s_pose" %i)
+            poseo = encode.orientation(obj.grasps[i].grasp_pose.pose.orientation, "%s_pose" %i)
+            msg.update(poseh)
+            msg.update(posep)
+            msg.update(poseo)
+
+            # descendants of pre_grasp_approach
+            apph = encode.header(obj.grasps[i].pre_grasp_approach.direction.header, "%s_app" %i)
+            appv = encode.vector(obj.grasps[i].pre_grasp_approach.direction.vector, "%s_app" %i)
+            msg.update(apph)
+            msg.update(appv)
+            msg["%s_appdesired_distance" %i] = obj.grasps[i].pre_grasp_approach.desired_distance
+            msg["%s_appmin_distance" %i] = obj.grasps[i].pre_grasp_approach.min_distance
+
+            # descendants of post_grasp_retreat
+            reth = encode.header(obj.grasps[i].post_grasp_retreat.direction.header, "%s_ret" %i)
+            retv = encode.vector(obj.grasps[i].post_grasp_retreat.direction.vector, "%s_ret" %i)
+            msg.update(reth)
+            msg.update(retv)
+            msg["%s_retdesired_distance" %i] = obj.grasps[i].post_grasp_retreat.desired_distance
+            msg["%s_retmin_distance" %i] = obj.grasps[i].post_grasp_retreat.min_distance
+
+            # descendants of post_place_retreat
+            plh = encode.header(obj.grasps[i].post_place_retreat.direction.header, "%s_place" %i)
+            plv = encode.vector(obj.grasps[i].post_place_retreat.direction.vector, "%s_place" %i)
+            msg.update(plh)
+            msg.update(plv)
+            msg["%s_pldesired_distance" %i] = obj.grasps[i].post_place_retreat.desired_distance
+            msg["%s_plmin_distance" %i] = obj.grasps[i].post_place_retreat.min_distance
         return(msg)
 
     def joint_controller_state(cls, obj):
@@ -225,14 +242,20 @@ class Encode():
 
     def tactile(cls, obj):
         msg = {}
-        msg["data"] = obj.data.data
+        msg['_length'] = len(obj.data)
+        for i in range(msg['_length']):
+            msg["%s_data" %i] = obj.data[i].data
         return(msg)
 
     def tactile_array(cls, obj):
         msg = {}
         h = encode.header(obj.header, "")
-        msg["data"] = obj.data.data.data
         msg.update(h)
+        msg['_length_t'] = len(obj.data)
+        for i in range(msg['_length_t']):
+            msg['%s_length_i' %i] = len(obj.data.data)
+            for j in range(msg['%s_length_i' %i]):
+                msg["%s_%s_data" %(i,j)] = obj.data.data.data
         return(msg)
 
     def ubi0(cls, obj):
@@ -251,7 +274,8 @@ class Encode():
     def cartesian_data(cls, obj):
         msg = {}
         msg["cartesian_positions_length"] = obj.cartesian_positions_length
-        for i in range(msg['cartesian_positions_length']):
+        msg['_length'] = len(obj.cartesian_positions)
+        for i in range(msg['_length']):
             t = encode.tip(obj.cartesian_positions[i], i)
             msg.update(t)
         return(msg)
@@ -265,7 +289,8 @@ class Encode():
         msg = {}
         msg["command_type"] = obj.command_type
         msg["sendupdate_length"] = obj.sendupdate_command.sendupdate_length
-        for i in range(msg['sendupdate_length']):
+        msg['_length'] = len(obj.sendupdate_command.sendupdate_list)
+        for i in range(msg['_length']):
             j = encode.joint(obj.sendupdate_command.sendupdate_list[i], i)
             msg.update(j)
         msg["contrlr_name"] = obj.contrlr_command.contrlr_name
@@ -296,7 +321,8 @@ class Encode():
     def joints_data(cls, obj):
         msg = {}
         msg["joints_list_length"] = obj.joints_list_length
-        for i in range(msg['joints_list_length']):
+        msg['_length'] = len(obj.joints_list)
+        for i in range(msg['_length']):
             j = encode.joint(obj.joints_list[i], i)
             msg.update(j)
         return(msg)
@@ -309,7 +335,8 @@ class Encode():
     def send_update(cls, obj):
         msg = {}
         msg["sendupdate_length"] = obj.sendupdate_length
-        for i in range(msg['sendupdate_length']):
+        msg['_length'] = len(obj.sendupdate_list)
+        for i in range(msg['_length']):
             j = encode.joint(obj.sendupdate_list[i], i)
             msg.update(j)
         return(msg)
@@ -335,6 +362,10 @@ class Decode():
             obj.tactiles[i] = decode.biotacs(msg, obj.tactiles[i], i)
         return(obj)
 
+    def control_type(cls, msg, obj):
+        obj.control_type = msg['control_type']
+        return(obj)
+
     def ethercat_debug(cls, msg, obj):
         obj.header = decode.header(msg, obj.header, "")
         obj.sensors = msg["sensors"]
@@ -355,39 +386,57 @@ class Decode():
         return(obj)
 
     def grasp_array(cls, msg, obj):
-        # grasps
-        obj.grasps.id = msg["id"]
-        obj.grasps.grasp_quality = msg["grasp_quality"]
-        obj.grasps.max_contact_force = msg["max_contact_force"]
-        obj.grasps.allowed_touch_objects = msg["allowed_touch_objects"]
-        # pre_grasp_posture
-        obj.grasps.pre_grasp_posture.header = decode.header(msg, obj.grasps.pre_grasp_posture.header, "pre")
-        obj.grasps.pre_grasp_posture.joint_names = msg["prejoint_names"]
-        obj.grasps.pre_grasp_posture.points = decode.grasp_points(msg, obj.grasps.pre_grasp_posture.points, "pre")
-        # grasp_posture
-        obj.grasps.grasp_posture.header = decode.header(msg, obj.grasps.grasp_posture.header, "posture")
-        obj.grasps.grasp_posture.joint_names = msg["joint_names"]
-        obj.grasps.grasp_posture.points = decode.grasp_points(msg, obj.grasps.grasp_posture.points, "posture")
-        # grasp_pose
-        obj.grasps.grasp_pose.header = decode.header(msg, obj.grasps.grasp_pose.header, "pose")
-        obj.grasps.grasp_pose.pose.position = decode.position(msg, obj.grasps.grasp_pose.pose.position, "pose")
-        obj.grasps.grasp_pose.pose.orientation = decode.orientation(msg, obj.grasps.grasp_pose.pose.orientation, "pose")
-        # pre_grasp_approach
-        obj.grasps.pre_grasp_approach.direction.header = decode.header(msg, obj.grasps.pre_grasp_approach.direction.header, "app")
-        obj.grasps.pre_grasp_approach.direction.vector = decode.vector(msg, obj.grasps.pre_grasp_approach.direction.vector, "app")
-        obj.grasps.pre_grasp_approach.desired_distance = msg["appdesired_distance"]
-        obj.grasps.pre_grasp_approach.min_distance = msg["appmin_distance"]
-        # post_grasp_retreat
-        obj.grasps.post_grasp_retreat.direction.header = decode.header(msg, obj.grasps.post_grasp_retreat.direction.header, "ret")
-        obj.grasps.post_grasp_retreat.direction.vector = decode.vector(msg, obj.grasps.post_grasp_retreat.direction.vector, "ret")
-        obj.grasps.post_grasp_retreat.desired_distance = msg["retdesired_distance"]
-        obj.grasps.post_grasp_retreat.min_distance = msg["retmin_distance"]
-        # post_place_retreat
-        obj.grasps.post_place_retreat.direction.header = decode.header(msg, obj.grasps.post_place_retreat.direction.header, "place")
-        obj.grasps.post_place_retreat.direction.vector = decode.vector(msg, obj.grasps.post_place_retreat.direction.vector, "place")
-        obj.grasps.post_place_retreat.desired_distance = msg["pldesired_distance"]
-        obj.grasps.post_place_retreat.min_distance = msg["plmin_distance"]
-        # return
+        # for me...
+        for i in range(msg['_length_grasp']):
+            gsp = Grasp()
+
+            # direct descendants of grasp:
+            gsp.id = msg["%s_id" %i]
+            gsp.grasp_quality = msg["%s_grasp_quality" %i]
+            gsp.max_contact_force = msg["%s_max_contact_force" %i]
+            gsp.allowed_touch_objects = msg["%s_allowed_touch_objects" %i]
+
+            # descendants of pre_grasp_posture:
+            gsp.pre_grasp_posture.header = decode.header(msg, gsp.pre_grasp_posture.header, "%s_pre" %i)
+            gsp.pre_grasp_posture.joint_names = msg['%s_prejoint_names' %i]
+            for j in range(msg['%s_length_points1' %i]):
+                jtp1 = JointTrajectoryPoint()
+                jtp1 = decode.grasp_points(msg, jtp1, "%s_%s_pre" %(i,j))
+                gsp.pre_grasp_posture.points.append(jtp1)
+
+            # descendants of grasp_posture:
+            gsp.grasp_posture.header = decode.header(msg, gsp.grasp_posture.header, "%s_posture" %i)
+            gsp.grasp_posture.joint_names = msg["%s_joint_names" %i]
+            for j in range(msg['%s_length_points2' %i])
+                jtp2 = JointTrajectoryPoint()
+                jtp2 = decode.grasp_points(msg, jtp2, "%s_%s_posture" %(i,j))
+                gsp.grasp_posture.points.append(jtp2)
+
+            # descendants of grasp_pose:
+            gsp.grasp_pose.header = decode.header(msg, gsp.grasp_pose.header, "%s_pose" %i)
+            gsp.grasp_pose.pose.position = decode.position(msg, gsp.grasp_pose.pose.position, "%s_pose" %i)
+            gsp.grasp_pose.pose.orientation = decode.orientation(msg, gsp.grasp_pose.pose.orientation, "%s_pose" %i)
+
+            # descendants of pre_grasp_approach:
+            gsp.pre_grasp_approach.direction.header = decode.header(msg, gsp.pre_grasp_approach.direction.header, "%s_app" %i)
+            gsp.pre_grasp_approach.direction.vector = decode.vector(msg, gsp.pre_grasp_approach.direction.vector, "%s_app" %i)
+            gsp.pre_grasp_approach.desired_distance = msg['%s_appdesired_distance' %i]
+            gsp.pre_grasp_approach.min_distance = msg['%s_appmin_distance' %i]
+
+            # descendants of post_grasp_retreat:
+            gsp.post_grasp_retreat.direction.header = decode.header(msg, gsp.post_grasp_retreat.direction.header, "%s_ret" %i)
+            gsp.post_grasp_retreat.direction.vector = decode.vector(msg, gsp.post_grasp_retreat.direction.vector, "%s_ret" %i)
+            gsp.post_grasp_retreat.desired_distance = msg['%s_retdesired_distance' %i]
+            gsp.post_grasp_retreat.min_distance = msg['%s_retmin_distance' %i]
+
+            # descendants of post_place_retreat
+            gsp.post_place_retreat.direction.header = decode.header(msg, gsp.post_place_retreat.direction.header, '%s_place' %i)
+            gsp.post_place_retreat.direction.vector = decode.vector(msg, gsp.post_place_retreat.direction.vector, '%s_place' %i)
+            gsp.post_place_retreat.desired_distance = msg['%s_pldesired_distance' %i]
+            gsp.post_place_retreat.min_distance = msg['%s_plmin_distance' %i]
+
+            # append Grasp to GraspArray:
+            obj.grasps.append(gsp)
         return(obj)
 
     def joint_controller_state(cls, msg, obj):
@@ -490,12 +539,21 @@ class Decode():
         return(obj)
 
     def tactile(cls, msg, obj):
-        obj.data.data = msg["data"]
+        for i in range(msg['_length']):
+            d = Int16()
+            d.data = msg['%s_data' %i]
+            obj.data.append(d)
         return(obj)
 
     def tactile_array(cls, msg, obj):
         obj.header = decode.header(msg, obj.header, "")
-        obj.data.data.data = msg["data"]
+            for i in range(msg['_length_t']):
+                t = Tactile()
+                for j in range(msg['%s_length_i' %i]):
+                    d = Int16()
+                    d.data = msg["%s_%s_data" %(i,j)]
+                    t.data.append(d)
+                obj.data.append(t)
         return(obj)
 
     def ubi0(cls, msg, obj):
@@ -510,8 +568,10 @@ class Decode():
 
     def cartesian_data(cls, msg, obj):
         obj.cartesian_positions_length = msg["cartesian_positions_length"]
-        for i in range(5):
-            obj.cartesian_positions[i] = decode.tip(msg, obj.cartesian_positions[i], i)
+        for i in range(msg['_length']):
+            cp = cartesian_position()
+            cp = decode.tip(msg, cp, i)
+            obj.cartesian_positions.append(cp)
         return(obj)
 
 
@@ -522,8 +582,10 @@ class Decode():
     def command(cls, msg, obj):
         obj.command_type = msg["command_type"]
         obj.sendupdate_command.sendupdate_length = msg["sendupdate_length"]
-        for i in range(msg['sendupdate_length']):
-            obj.sendupdate_command.sendupdate_list[i] = decode.joint(msg, obj.sendupdate_command.sendupdate_list[i], i)
+        for i in range(msg['_length']):
+            j = joint()
+            j = decode.joint(msg, j, i)
+            obj.sendupdate_command.sendupdate_list.append(j)
         obj.contrlr_command.contrlr_name = msg["contrlr_name"]
         obj.contrlr_command.list_of_parameters = msg["list_of_parameters"]
         obj.contrlr_command.length_of_list = msg["length_of_list"]
@@ -547,8 +609,10 @@ class Decode():
 
     def joints_data(cls, msg, obj):
         obj.joints_list_length = msg["joints_list_length"]
-        for i in range(msg['joints_list_length']):
-            obj.joints_list[i] = decode.joint(obj.joints_list[i], i)
+        for i in range(msg['_length']):
+            j = joint()
+            j = decode.joint(msg, j, i)
+            obj.joints_list.append(j)
         return(obj)
 
     def reverse_kinematics(cls, msg, obj):
@@ -557,6 +621,8 @@ class Decode():
 
     def send_update(cls, msg, obj):
         obj.sendupdate_length = msg["sendupdate_length"]
-        for i in range(msg['sendupdate_length']):
-            obj.sendupdate_list[i] = decode.joint(msg, obj.sendupdate_list[i], i)
+        for i in range(msg['_length']):
+            j = joint()
+            j = decode.joint(msg, j, i)
+            obj.sendupdate_list.append(j)
         return(obj)

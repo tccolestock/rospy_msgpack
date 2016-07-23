@@ -1,5 +1,7 @@
 
 from rospy_msgpack import interpret
+from geometry_msgs.msg import Point, PoseStamped, Pose, Quaternion
+from std_msgs.msg import Header
 
 encode = interpret.Encode()
 decode = interpret.Decode()
@@ -13,9 +15,11 @@ class Encode():
         h = encode.header(obj.header, "")
         msg['cell_width'] = obj.cell_width
         msg['cell_height'] = obj.cell_height
-        c = encode.xyz(obj.cells, "", "cells")
+        msg['_length'] = len(obj.cells)
+        for i in range(msg['_length']):
+            c = encode.xyz(obj.cells[i], i, "cells")
+            msg.update(c)
         msg.update(h)
-        msg.update(c)
         return(msg)
 
     def map_meta_data(cls, obj):
@@ -67,13 +71,15 @@ class Encode():
     def path(cls, obj):
         msg = {}
         h = encode.header(obj.header, "")
-        ph = encode.header(obj.poses.header, "pose")
-        p = encode.position(obj.poses.pose.position, "")
-        o = encode.orientation(obj.poses.pose.orientation, "")
+        msg['_length'] = len(obj.poses)
+        for i in range(msg['_length']):
+            h2 = encode.header(obj.poses[i].header, i)
+            p = encode.position(obj.poses[i].pose.position, i)
+            o = encode.orientation(obj.poses[i].pose.orientation, i)
+            msg.update(h2)
+            msg.update(p)
+            msg.update(o)
         msg.update(h)
-        msg.update(ph)
-        msg.update(p)
-        msg.update(o)
         return(msg)
 
 #=================================================================================
@@ -84,9 +90,12 @@ class Decode():
 
     def grid_cells(cls, msg, obj):
         obj.header = decode.header(msg, obj.header, "")
-        obj.cells = decode.xyz(obj.cells, "", "cells")
         obj.cell_width = msg['cell_width']
         obj.cell_height = msg['cell_height']
+        for i in range(msg['_length']):
+            cell = Point()
+            cell = decode.xyz(msg, cell, i, "cells")
+            obj.cells.append(cell)
         return(obj)
 
     def map_meta_data(cls, msg, obj):
@@ -122,7 +131,10 @@ class Decode():
 
     def path(cls, msg, obj):
         obj.header = decode.header(msg, obj.header, "")
-        obj.poses.header = decode.header(msg, obj.poses.header, "pose")
-        obj.poses.pose.position = decode.position(msg, obj.poses.pose.position, "")
-        obj.poses.pose.orientation = decode.orientation(msg, obj.poses.pose.orientation, "")
+        for i in range(msg['_length']):
+            ps = PoseStamped()
+            ps.header = decode.header(msg, ps.header, i)
+            ps.pose.position = decode.position(msg, ps.pose.position, i)
+            ps.pose.orientation = decode.orientation(msg, ps.pose.orientation, i)
+            obj.poses.append(ps)
         return(obj)

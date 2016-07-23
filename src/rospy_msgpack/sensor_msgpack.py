@@ -1,5 +1,7 @@
 
 from rospy_msgpack import interpret
+from sensor_msgs.msg import JoyFeedback, LaserEcho, ChannelFloat32, PointField
+from geometry_msgs.msg import Transform, Twist, Wrench, Point32
 
 encode = interpret.Encode()
 decode = interpret.Decode()
@@ -100,12 +102,21 @@ class Encode():
         msg.update(h)
         return(msg)
 
-    # def joy_feedback(cls, obj):
-    #     msg = {}
+    def joy_feedback(cls, obj):
+        msg = {}
+        msg['type'] = obj.type
+        msg['id'] = obj.id
+        msg['intensity'] = intensity
+        return(msg)
 
-    # def joy_feedback_array(cls, obj):
-    #     msg = {}
-    #
+    def joy_feedback_array(cls, obj):
+        msg = {}
+        msg['_length'] = len(obj.array)
+        for i in range(msg['_length']):
+            msg['%s_type' %i] = obj.array[i].type
+            msg['%s_id' %i] = obj.array[i].id
+            msg['%s_intensity' %i] = obj.array[i].intensity
+        return(msg)
 
     def laser_echo(cls, obj):
         msg = {}
@@ -134,64 +145,114 @@ class Encode():
     def multi_dof_joint_state(cls, obj):
         msg = {}
         h = encode.header(obj.header, "")
+        msg.update(h)
         msg["joint_names"] = obj.joint_names
-        for i in msg['joint_names']:
+        msg['_length_trans'] = len(obj.transforms)
+        msg['_length_twist'] = len(obj.twist)
+        msg['_length_wrench'] = len(obj.wrench)
+        for i in msg['_length_trans']:
             tr = encode.translation(obj.transforms[i].translation, i)
             r = encode.rotation(obj.transforms[i].rotation, i)
-            l = encode.linear(obj.twist[i].linear, i)
-            a = encode.angular(obj.twist[i].angular, i)
-            f = encode.force(obj.wrench[i].force, i)
-            tq = encode.torque(obj.wrench[i].torque, i)
             msg.update(tr)
             msg.update(r)
+        for i in msg['_length_twist']:
+            l = encode.linear(obj.twist[i].linear, i)
+            a = encode.angular(obj.twist[i].angular, i)
             msg.update(l)
             msg.update(a)
+        for i in msg['_length_wrench']:
+            f = encode.force(obj.wrench[i].force, i)
+            tq = encode.torque(obj.wrench[i].torque, i)
             msg.update(f)
             msg.update(tq)
-        msg.update(h)
         return(msg)
 
     def multi_echo_laser_scan(cls, obj):
         msg = {}
         h = encode.header(obj.header, "")
         l = encode.laser(obj, "")
-        msg["rechoes"] = obj.ranges.echoes
-        msg["iechoes"] = obj.intensities.echoes
+        msg['_length_ranges'] = len(obj.ranges)
+        msg['_length_intensities'] = len(obj.intensities)
+        for i in range(msg['_length_ranges']):
+            msg["%s_rechoes" %i] = obj.ranges[i].echoes
+        for i in range(msg['_length_intensities']):
+            msg["%s_iechoes" %i] = obj.intensities[i].echoes
         msg.update(h)
         msg.update(l)
         return(msg)
 
-    # def nav_sat_fix(cls, obj):
-    #     msg = {}
-    #
+    def nav_sat_fix(cls, obj):
+        msg = {}
+        h = encode.header(obj.header, "")
+        msg['status'] = obj.status.status
+        msg['service'] = obj.status.service
+        msg['lat'] = obj.latitude
+        msg['long'] = obj.longitude
+        msg['alt'] = obj.altitude
+        msg['pos_covar'] = obj.position_covariance
+        msg['pos_cavar_type'] = obj.position_covariance_type
+        msg.update(h)
+        return(msg)
 
-    # def nav_sat_status(cls, obj):
-    #     msg = {}
-    #
+    def nav_sat_status(cls, obj):
+        msg = {}
+        msg['status'] = obj.status
+        msg['service'] = obj.service
+        return(msg)
+
 
     def point_cloud(cls, obj):
         msg = {}
         h = encode.header(obj.header, "")
-        p = encode.point(obj.points, "")
-        msg["name"] = obj.channels.name
-        msg["values"] = obj.channels.values
+        msg['_length_points'] = len(obj.points)
+        msg['_length_channels'] = len(obj.channels)
+        for i in range(msg['_length_points']):
+            p = encode.point(obj.points[i], i)
+            msg.update(p)
+        for i in range(msg['_length_channels']):
+            msg["%s_name" %i] = obj.channels[i].name
+            msg["%s_values" %i] = obj.channels[i].values
         msg. update(h)
-        msg.update(p)
         return(msg)
 
-    # def point_cloud_2(cls, obj):
-    #     msg = {}
-    #     h = encode.header(obj.header, "")
-    #     msg["height"] = obj.height
-    #     msg["width"] = obj.width
+    def point_cloud_2(cls, obj):
+        msg = {}
+        h = encode.header(obj.header, "")
+        msg.update(h)
+        msg["height"] = obj.height
+        msg["width"] = obj.width
+        msg['_length'] = len(obj.fields)
+        for i in range(msg['_length']):
+            msg['%s_name' %i] = obj.fields[i].name
+            msg['%s_offset' %i] = obj.fields[i].offset
+            msg['%s_datatype' %i] = obj.fields[i].datatype
+            msg['%s_count' %i] = obj.fields[i].count
+        msg['is_bigedian'] = obj.is_bigedian
+        msg['point_step'] = obj.point_step
+        msg['row_step'] = obj.row_step
+        msg['data'] = obj.data
+        msg['is_dense'] = obj.is_dense
+        return(msg)
 
-    # def point_field(cls, obj):
-    #     msg = {}
-    #
+    def point_field(cls, obj):
+        msg = {}
+        msg['name'] = obj.name
+        msg['offset'] = obj.offset
+        msg['datatype'] = obj.datatype
+        msg['count'] = obj.count
+        return(msg)
 
-    # def range(cls, obj):
-    #     msg = {}
-    #
+    def range(cls, obj):
+        msg = {}
+        h = encode.header(obj.header, "")
+        msg.update(h)
+        msg['radiation_type'] = obj.radiation_type
+        msg['field_of_view'] = obj.field_of_view
+        msg['min_range'] = obj.min_range
+        msg['max_range'] = obj.max_range
+        msg['range'] = obj.range
+        return(msg)
+
 
     def region_of_interest(cls, obj):
         msg = {}
@@ -302,6 +363,21 @@ class Decode():
         obj.buttons = msg["buttons"]
         return(obj)
 
+    def joy_feedback(cls, msg, obj):
+        obj.type = msg['type']
+        obj.id = msg['id']
+        intensity = msg['intensity']
+        return(obj)
+
+    def joy_feedback_array(cls, msg, obj):
+        for i in range(msg['_length']):
+            jf = JoyFeedback()
+            jf.type = msg['%s_type' %i]
+            jf.id = msg['%s_id' %i]
+            jf.intensity = msg['%s_intensity' %i]
+            obj.array.append(jf)
+        return(obj)
+
     def laser_echo(cls, obj):
         obj.echoes = msg["echoes"]
         return(obj)
@@ -322,27 +398,97 @@ class Decode():
     def multi_dof_joint_state(cls, msg, obj):
         obj.header = decode.header(msg, obj.header, "")
         obj.joint_names = msg["joint_names"]
-        for i in msg['joint_names']:
-            obj.transforms[i].translation = decode.translation(msg, obj.transforms[i].translation, i)
-            obj.transforms[i].rotation = decode.rotation(msg, obj.transforms[i].rotation, i)
-            obj.twist[i].linear = decode.linear(msg, obj.twist[i].linear, i)
-            obj.twist[i].angular = decode.angular(msg, obj.twist[i].angular, i)
-            obj.wrench[i].force = decode.force(msg, obj.wrench[i].force, i)
-            obj.wrench[i].torque = decode.torque(msg, obj.wrench[i].torque, i)
+        for i in msg['_length_trans']:
+            trans = Transform()
+            trans.translation = decode.translation(msg, trans.translation, i)
+            trans.rotation = decode.rotation(msg, trans.rotation, i)
+            obj.transforms.append(trans)
+        for i in msg['_length_twist']:
+            tw = Twist()
+            tw.linear = decode.linear(msg, tw.linear, i)
+            tw.angular = decode.angular(msg, tw.angular, i)
+            obj.twist.append(twist)
+        for i in msg['_length_twist']:
+            wr = Wrench()
+            wr.force = decode.force(msg, wr.force, i)
+            wr.torque = decode.torque(msg, wr.torque, i)
+            obj.wrench.append(wr)
         return(obj)
 
     def multi_echo_laser_scan(cls, msg, obj):
         obj.header = decode.header(msg, obj.header, "")
         obj = decode.laser(msg, obj, "")
-        obj.ranges.echoes = msg["rechoes"]
-        obj.intensities.echoes = msg["iechoes"]
+        for i in range(msg['_length_ranges']):
+            ler = LaserEcho() # laser echo ranges
+            ler.echoes = msg["%s_rechoes" %i]
+            obj.ranges.append(ler)
+        for i in range(msg['_length_intensities']):
+            lei = LaserEcho() # laser echo intensities
+            lei.echoes = msg["%s_iechoes" %i]
+            obj.intensities.append(lei)
+        return(obj)
+
+    def nav_sat_fix(cls, msg, obj):
+        obj.header = decode.header(msg, obj.header, "")
+        obj.status.status = msg['status']
+        obj.status.service = msg['service']
+        obj.latitude = msg['lat']
+        obj.longitude = msg['long']
+        obj.altitude = msg['alt']
+        obj.position_covariance = msg['pos_covar']
+        obj.position_covariance_type = msg['pos_cavar_type']
+        return(obj)
+
+    def nav_sat_status(cls, msg, obj):
+        obj.status = msg['status']
+        obj.service = msg['service']
         return(obj)
 
     def point_cloud(cls, msg, obj):
         obj.header = decode.header(msg, obj.header, "")
-        obj.points = decode.point(msg, obj.points, "")
-        obj.channels.name = msg["name"]
-        obj.channels.values = msg["values"]
+        for i in range(msg['_length_points']):
+            pnt = Point32()
+            pnt = decode.point(msg, pnt, i)
+            obj.points.append(png)
+        for i in range(msg['_length_channels']):
+            ch = ChannelFloat32()
+            ch.name = msg["%s_name" %i]
+            ch.values = msg["%s_values" %i]
+            obj.channels.append(ch)
+        return(obj)
+
+    def point_cloud_2(cls, msg, obj):
+        obj.header = decode.header(msg, obj.header, "")
+        obj.height = msg["height"]
+        obj.width = msg["width"]
+        for i in range(msg['_length']):
+            pf = PointField()
+            pf.name = msg['%s_name' %i]
+            pf.offset = msg['%s_offset' %i]
+            pf.datatype = msg['%s_datatype' %i]
+            pf.count = msg['%s_count' %i]
+            obj.fields.append(pf)
+        obj.is_bigedian = msg['is_bigedian']
+        obj.point_step = msg['point_step']
+        obj.row_step = msg['row_step']
+        obj.data = msg['data']
+        obj.is_dense = msg['is_dense']
+        return(obj)
+
+    def point_field(cls, msg, obj):
+        obj.name = msg['name']
+        obj.offset = msg['offset']
+        obj.datatype = msg['datatype']
+        obj.count = msg['count']
+        return(obj)
+
+    def range(cls, msg, obj):
+        obj.header = decode.header(msg, obj.header, "")
+        obj.radiation_type = msg['radiation_type']
+        obj.field_of_view = msg['field_of_view']
+        obj.min_range = msg['min_range']
+        obj.max_range = msg['max_range']
+        obj.range = msg['range']
         return(obj)
 
     def region_of_interest(cls, msg, obj):
