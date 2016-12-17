@@ -2,12 +2,13 @@
 # import rospy
 from rospy_msgpack import interpret
 # from roslib import geometry_msgs #import *
- # std_msgs.msg
+# std_msgs.msg
 # import roslib ; roslib.load_manifest('geometry_msgs')
 import geometry_msgs.msg
 
 encode = interpret.Encode()
 decode = interpret.Decode()
+
 
 class Encode():
     def __init__(self):
@@ -215,7 +216,6 @@ class Encode():
         msg.update(lin)
         msg.update(ang)
         return(msg)
-
 
     def twist_stamped(cls, obj):
         msg = {}
