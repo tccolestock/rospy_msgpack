@@ -1,10 +1,21 @@
 
+"""
+Privides a method to convert sensor_msgs into serializable structures for
+ msgpack. For use with the ZeroMQ socket communication.
+
+BioRobotics Lab, Florida Atlantic University, 2016
+"""
+__author__ = "Thomas Colestock"
+__version__ = "1.0.0"
+
 from rospy_msgpack import interpret
 from sensor_msgs.msg import JoyFeedback, LaserEcho, ChannelFloat32, PointField
 from geometry_msgs.msg import Transform, Twist, Wrench, Point32
 
+
 encode = interpret.Encode()
 decode = interpret.Decode()
+
 
 class Encode():
     def __init__(self):
@@ -77,7 +88,8 @@ class Encode():
         av = encode.xyz(obj.angular_velocity, "ang_", "velo")
         msg["angular_velocity_covariance"] = obj.angular_velocity_covariance
         la = encode.xyz(obj.linear_acceleration, "lin_", "accel")
-        msg["linear_acceleration_covariance"] = obj.linear_acceleration_covariance
+        msg["linear_acceleration_covariance"] = \
+            obj.linear_acceleration_covariance
         msg.update(h)
         msg.update(o)
         msg.update(av)
@@ -113,9 +125,9 @@ class Encode():
         msg = {}
         msg['_length'] = len(obj.array)
         for i in range(msg['_length']):
-            msg['%s_type' %i] = obj.array[i].type
-            msg['%s_id' %i] = obj.array[i].id
-            msg['%s_intensity' %i] = obj.array[i].intensity
+            msg['%s_type' % i] = obj.array[i].type
+            msg['%s_id' % i] = obj.array[i].id
+            msg['%s_intensity' % i] = obj.array[i].intensity
         return(msg)
 
     def laser_echo(cls, obj):
@@ -174,9 +186,9 @@ class Encode():
         msg['_length_ranges'] = len(obj.ranges)
         msg['_length_intensities'] = len(obj.intensities)
         for i in range(msg['_length_ranges']):
-            msg["%s_rechoes" %i] = obj.ranges[i].echoes
+            msg["%s_rechoes" % i] = obj.ranges[i].echoes
         for i in range(msg['_length_intensities']):
-            msg["%s_iechoes" %i] = obj.intensities[i].echoes
+            msg["%s_iechoes" % i] = obj.intensities[i].echoes
         msg.update(h)
         msg.update(l)
         return(msg)
@@ -200,7 +212,6 @@ class Encode():
         msg['service'] = obj.service
         return(msg)
 
-
     def point_cloud(cls, obj):
         msg = {}
         h = encode.header(obj.header, "")
@@ -210,8 +221,8 @@ class Encode():
             p = encode.point(obj.points[i], i)
             msg.update(p)
         for i in range(msg['_length_channels']):
-            msg["%s_name" %i] = obj.channels[i].name
-            msg["%s_values" %i] = obj.channels[i].values
+            msg["%s_name" % i] = obj.channels[i].name
+            msg["%s_values" % i] = obj.channels[i].values
         msg. update(h)
         return(msg)
 
@@ -223,10 +234,10 @@ class Encode():
         msg["width"] = obj.width
         msg['_length'] = len(obj.fields)
         for i in range(msg['_length']):
-            msg['%s_name' %i] = obj.fields[i].name
-            msg['%s_offset' %i] = obj.fields[i].offset
-            msg['%s_datatype' %i] = obj.fields[i].datatype
-            msg['%s_count' %i] = obj.fields[i].count
+            msg['%s_name' % i] = obj.fields[i].name
+            msg['%s_offset' % i] = obj.fields[i].offset
+            msg['%s_datatype' % i] = obj.fields[i].datatype
+            msg['%s_count' % i] = obj.fields[i].count
         msg['is_bigedian'] = obj.is_bigedian
         msg['point_step'] = obj.point_step
         msg['row_step'] = obj.row_step
@@ -252,7 +263,6 @@ class Encode():
         msg['max_range'] = obj.max_range
         msg['range'] = obj.range
         return(msg)
-
 
     def region_of_interest(cls, obj):
         msg = {}
@@ -285,9 +295,7 @@ class Encode():
         return(msg)
 
 
-# ==========================================================================================
-
-
+# ============================================================================
 class Decode():
     def __init__(self):
         pass
@@ -343,10 +351,13 @@ class Decode():
         obj.header = decode.header(msg, obj.header, "")
         obj.orientation = decode.orientation(msg, obj.orientation, "")
         obj.orientation_covariance = msg["orientation_covariance"]
-        obj.angular_velocity = decode.xyz(msg, obj.angular_velocity, "ang_", "velo")
+        obj.angular_velocity = \
+            decode.xyz(msg, obj.angular_velocity, "ang_", "velo")
         obj.angular_velocity_covariance = msg["angular_velocity_covariance"]
-        obj.linear_acceleration = decode.xyz(msg, obj.linear_acceleration, "lin_", "accel")
-        obj.linear_acceleration_covariance = msg["linear_acceleration_covariance"]
+        obj.linear_acceleration = \
+            decode.xyz(msg, obj.linear_acceleration, "lin_", "accel")
+        obj.linear_acceleration_covariance = \
+            msg["linear_acceleration_covariance"]
         return(obj)
 
     def joint_state(self, msg, obj):
@@ -372,9 +383,9 @@ class Decode():
     def joy_feedback_array(cls, msg, obj):
         for i in range(msg['_length']):
             jf = JoyFeedback()
-            jf.type = msg['%s_type' %i]
-            jf.id = msg['%s_id' %i]
-            jf.intensity = msg['%s_intensity' %i]
+            jf.type = msg['%s_type' % i]
+            jf.id = msg['%s_id' % i]
+            jf.intensity = msg['%s_intensity' % i]
             obj.array.append(jf)
         return(obj)
 
@@ -419,12 +430,12 @@ class Decode():
         obj.header = decode.header(msg, obj.header, "")
         obj = decode.laser(msg, obj, "")
         for i in range(msg['_length_ranges']):
-            ler = LaserEcho() # laser echo ranges
-            ler.echoes = msg["%s_rechoes" %i]
+            ler = LaserEcho()  # laser echo ranges
+            ler.echoes = msg["%s_rechoes" % i]
             obj.ranges.append(ler)
         for i in range(msg['_length_intensities']):
-            lei = LaserEcho() # laser echo intensities
-            lei.echoes = msg["%s_iechoes" %i]
+            lei = LaserEcho()  # laser echo intensities
+            lei.echoes = msg["%s_iechoes" % i]
             obj.intensities.append(lei)
         return(obj)
 
@@ -452,8 +463,8 @@ class Decode():
             obj.points.append(png)
         for i in range(msg['_length_channels']):
             ch = ChannelFloat32()
-            ch.name = msg["%s_name" %i]
-            ch.values = msg["%s_values" %i]
+            ch.name = msg["%s_name" % i]
+            ch.values = msg["%s_values" % i]
             obj.channels.append(ch)
         return(obj)
 
@@ -463,10 +474,10 @@ class Decode():
         obj.width = msg["width"]
         for i in range(msg['_length']):
             pf = PointField()
-            pf.name = msg['%s_name' %i]
-            pf.offset = msg['%s_offset' %i]
-            pf.datatype = msg['%s_datatype' %i]
-            pf.count = msg['%s_count' %i]
+            pf.name = msg['%s_name' % i]
+            pf.offset = msg['%s_offset' % i]
+            pf.datatype = msg['%s_datatype' % i]
+            pf.count = msg['%s_count' % i]
             obj.fields.append(pf)
         obj.is_bigedian = msg['is_bigedian']
         obj.point_step = msg['point_step']

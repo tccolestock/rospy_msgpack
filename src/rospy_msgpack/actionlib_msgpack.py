@@ -1,9 +1,20 @@
 
+"""
+Privides a method to convert actionlib_msgs into serializable structures for
+ msgpack. For use with the ZeroMQ socket communication.
+
+BioRobotics Lab, Florida Atlantic University, 2016
+"""
+__author__ = "Thomas Colestock"
+__version__ = "1.0.0"
+
 from rospy_msgpack import interpret
 from actionlib_msgs.msg import GoalID, GoalStatus
 
+
 encode = interpret.Encode()
 decode = interpret.Decode()
+
 
 class Encode():
     def __init__(self):
@@ -32,9 +43,9 @@ class Encode():
         msg['_length'] = len(obj.status_list)
         for i in range(msg['_length']):
             t = e_time(obj.status_list[i].goal_id.stamp, i)
-            msg['%s_id' %i] = obj.status_list[i].goal_id.id
-            msg['%s_status' %i] = obj.status_list[i].status
-            msg['%s_text' %i] = obj.status_list[i].text
+            msg['%s_id' % i] = obj.status_list[i].goal_id.id
+            msg['%s_status' % i] = obj.status_list[i].status
+            msg['%s_text' % i] = obj.status_list[i].text
             msg.update(t)
         msg.update(h)
         return(msg)
@@ -61,9 +72,10 @@ class Decode():
         obj.header = decode.header(msg, obj.header, "")
         for i in range(msg['_length']):
             goal_status = GoalStatus()
-            goal_status.goal_id.stamp = decode.time_stamp(msg, goal_id.stamp, i)
-            goal_status.goal_id.id = msg['%s_id' %i]
-            goal_status.status = msg['%s_status' %i]
-            goal_status.text = msg['%s_text' %i]
+            goal_status.goal_id.stamp = decode.time_stamp(msg,
+                                                          goal_id.stamp, i)
+            goal_status.goal_id.id = msg['%s_id' % i]
+            goal_status.status = msg['%s_status' % i]
+            goal_status.text = msg['%s_text' % i]
             obj.status_list.append(goal_status)
         return(obj)

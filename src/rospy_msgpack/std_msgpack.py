@@ -1,10 +1,20 @@
 
+"""
+Privides a method to convert std_msgs into serializable structures for
+ msgpack. For use with the ZeroMQ socket communication.
+
+BioRobotics Lab, Florida Atlantic University, 2016
+"""
+__author__ = "Thomas Colestock"
+__version__ = "1.0.0"
+
 from rospy_msgpack import interpret
 from std_msgs.msg import MultiArrayDimension
 
 
 encode = interpret.Encode()
 decode = interpret.Decode()
+
 
 class Encode():
     def __init__(self):

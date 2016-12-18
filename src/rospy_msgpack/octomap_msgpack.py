@@ -1,8 +1,19 @@
 
+"""
+Privides a method to convert octomap_msgs into serializable structures for
+ msgpack. For use with the ZeroMQ socket communication.
+
+BioRobotics Lab, Florida Atlantic University, 2016
+"""
+__author__ = "Thomas Colestock"
+__version__ = "1.0.0"
+
 from rospy_msgpack import interpret
+
 
 encode = interpret.Encode()
 decode = interpret.Decode()
+
 
 class Encode():
     def __init__(self):
@@ -49,7 +60,8 @@ class Decode():
     def octomap_with_pose(cls, msg, obj):
         obj.header = decode.header(msg, obj.header, "top")
         obj.origin.position = decode.position(msg, obj.origin.position, "")
-        obj.origin.orientation = decode.orientation(msg, obj.origin.orientation, "")
+        obj.origin.orientation = \
+            decode.orientation(msg, obj.origin.orientation, "")
         obj.octomap.header = decode.header(msg, obj.octomap.header, "nest")
         obj.octomap.binary = msg['binary']
         obj.octomap.id = msg['id']

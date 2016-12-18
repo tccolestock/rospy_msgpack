@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
 <package>
   <name>rospy_msgpack</name>
-  <version>0.0.0</version>
+  <version>0.5.0</version>
   <description>The rospy_msgpack package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
   <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
-  <maintainer email="chad@todo.todo">chad</maintainer>
+  <maintainer email="tcolesto@fau.edu">Thomas Colestock</maintainer>
 
 
   <!-- One license tag required, multiple allowed, one license per tag -->
@@ -26,6 +26,7 @@
   <!-- Authors do not have to be maintianers, but could be -->
   <!-- Example: -->
   <!-- <author email="jane.doe@example.com">Jane Doe</author> -->
+  <author email="tcolesto@fau.edu">Thomas Colestock</author>
 
 
   <!-- The *_depend tags are used to specify dependencies -->

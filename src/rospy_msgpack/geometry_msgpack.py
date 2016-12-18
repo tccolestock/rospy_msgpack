@@ -1,10 +1,16 @@
 
-# import rospy
+"""
+Privides a method to convert geometry_msgs into serializable structures for
+ msgpack. For use with the ZeroMQ socket communication.
+
+BioRobotics Lab, Florida Atlantic University, 2016
+"""
+__author__ = "Thomas Colestock"
+__version__ = "1.0.0"
+
 from rospy_msgpack import interpret
-# from roslib import geometry_msgs #import *
-# std_msgs.msg
-# import roslib ; roslib.load_manifest('geometry_msgs')
 import geometry_msgs.msg
+
 
 encode = interpret.Encode()
 decode = interpret.Decode()
@@ -281,8 +287,8 @@ class Encode():
         msg.update(t)
         return(msg)
 
-#=======================================================================================
 
+# =============================================================================
 class Decode():
     def __init__(self):
         pass
@@ -307,7 +313,8 @@ class Decode():
     def accel_with_covariance_stamped(cls, msg, obj):
         obj.header = decode.header(msg, obj.header, "")
         obj.accel.accel.linear = decode.linear(msg, obj.accel.accel.linear, "")
-        obj.accel.accel.angular = decode.angular(msg, obj.accel.accel.angular, "")
+        obj.accel.accel.angular = decode.angular(msg, obj.accel.accel.angular,
+                                                 "")
         obj.accel = decode.covariance(msg, obj.accel, "")
         return(obj)
 
@@ -387,19 +394,23 @@ class Decode():
     def pose_stamped(cls, msg, obj):
         obj.header = decode.header(msg, obj.header, "")
         obj.poses.position = decode.position(msg, obj.pose.position, "")
-        obj.poses.orientation = decode.orientation(msg, obj.pose.orientation, "")
+        obj.poses.orientation = decode.orientation(msg, obj.pose.orientation,
+                                                   "")
         return(obj)
 
     def pose_with_covariance(cls, msg, obj):
         obj.pose.position = decode.position(msg, obj.pose.position, "")
-        obj.pose.orientation = decode.orientation(msg, obj.pose.orientation, "")
+        obj.pose.orientation = decode.orientation(msg, obj.pose.orientation,
+                                                  "")
         obj = decode.covariance(msg, obj, "")
         return(obj)
 
     def pose_with_covariance_stamped(cls, msg, obj):
         obj.header = decode.header(msg, obj.header, "")
-        obj.pose.pose.position = decode.position(msg, obj.pose.pose.position, "")
-        obj.pose.pose.orientation = decode.orientation(msg, obj.pose.pose.orientation, "")
+        obj.pose.pose.position = decode.position(msg, obj.pose.pose.position,
+                                                 "")
+        obj.pose.pose.orientation = decode.orientation(msg,
+                                                obj.pose.pose.orientation, "")
         obj.pose = decode.covariance(msg, obj.pose, "")
         return(obj)
 
@@ -420,8 +431,10 @@ class Decode():
     def transform_stamped(cls, msg, obj):
         obj.header = decode.header(msg, obj.header, "")
         obj.child_frame_id = msg['child_frame_id']
-        obj.transform.translation = decode.translation(msg, obj.transform.translation, "")
-        obj.transform.rotation = decode.rotation(msg, obj.transform.rotation, "")
+        obj.transform.translation = decode.translation(msg,
+                                                obj.transform.translation, "")
+        obj.transform.rotation = decode.rotation(msg, obj.transform.rotation,
+                                                 "")
         return(obj)
 
     def twist(self, msg, obj):
@@ -444,7 +457,8 @@ class Decode():
     def twist_with_covariance_stamped(cls, msg, obj):
         obj.header = decode.header(msg, obj.header, "")
         obj.twist.twist.linear = decode.linear(msg, obj.twist.twist.linear, "")
-        obj.twist.twist.angular = decode.angular(msg, obj.twist.twist.angular, "")
+        obj.twist.twist.angular = decode.angular(msg, obj.twist.twist.angular,
+                                                 "")
         obj.twist = decode.covariance(msg, obj.twist, "")
         return(obj)
 

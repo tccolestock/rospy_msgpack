@@ -1,9 +1,20 @@
 
+"""
+Privides a method to convert controller_manager_msgs into serializable
+ structures for msgpack. For use with the ZeroMQ socket communication.
+
+BioRobotics Lab, Florida Atlantic University, 2016
+"""
+__author__ = "Thomas Colestock"
+__version__ = "1.0.0"
+
 from rospy_msgpack import interpret
 from controller_manager_msgs.msg import ControllerStatistics
 
+
 encode = interpret.Encode()
 decode = interpret.Decode()
+
 
 class Encode():
     def __init__(self):
@@ -33,6 +44,7 @@ class Encode():
             s = encode.controller_statistics(obj.controller[i], i)
             msg.update(s)
         return(msg)
+
 
 class Decode():
     def __init__(self):

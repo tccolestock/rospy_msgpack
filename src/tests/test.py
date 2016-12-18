@@ -1,9 +1,20 @@
 #!/usr/bin/env python
 
-import rospy
-from geometry_msgs.msg import Polygon, Point32
-import StringIO
+"""
+Test script to check the rospy_msgpack package. Creates a geometry_msgs
+ Polygon and publishes it so another script can subscribe to the topic.
+
+BioRobotics Lab, Florida Atlantic University, 2016
+"""
+__author__ = "Thomas Colestock"
+__version__ = "1.0.0"
+
 import time
+import StringIO
+
+import rospy
+
+from geometry_msgs.msg import Polygon, Point32
 
 
 poly = Polygon()
@@ -26,7 +37,7 @@ poly = Polygon([pnt1, pnt2, pnt3])
 # poly = Polygon([pnt1])
 print(dir(poly))
 # print(len(poly.__getstate__()[0]))
-print(len(poly.points)) #could work
+print(len(poly.points))  # could work
 print(poly.points)
 # print(poly.__format__())
 print(poly.points[1])
@@ -37,24 +48,12 @@ for i in poly.points:
     print("testing...")
     print(i.y)
 
-# stobj = StringIO.StringIO()
-#
-# st = poly.serialize(stobj)
-# print(stobj.getvalue())
-# print(poly)
-# new = Polygon()
-# print(new)
-# new.deserialize(stobj.getvalue())
-# print(new)
-# rospy.
-
-# print(pnt)
 
 def talker():
     rospy.init_node("tester", anonymous=True)
     pub_handle = rospy.Publisher("test_poly", Polygon, queue_size=10)
     time.sleep(1)
-    rate_handle = rospy.Rate(10) #hz
+    rate_handle = rospy.Rate(10)
     while not rospy.is_shutdown():
         pub_handle.publish(poly)
         print("publishing...")
